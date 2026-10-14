@@ -1,0 +1,46 @@
+name: Production health
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-health-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Check production
+        id: health
+        continue-on-error: true
+        run: node scripts/health-check.mjs
+      - name: Validate metadata ledger
+        if: always() && hashFiles('.local/latest-health.json') != ''
+        run: python3 scripts/record_health.py
+      - name: Upload compact health report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: dhivi-health-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .local/latest-health.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Fail when production is unhealthy
+        if: always() && steps.health.outcome != 'success'
+        run: exit 1

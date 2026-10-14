@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Geopolitical AI topic illustration</title>
+  <desc id="desc">An abstract globe of meridians connected to chip nodes. This is a schematic topic illustration, without national borders or geographic claims, used when a publisher has no article thumbnail.</desc>
+  <defs>
+    <radialGradient id="ambient" cx=".54" cy=".48" r=".72"><stop stop-color="#152b24"/><stop offset=".52" stop-color="#101919"/><stop offset="1" stop-color="#070b0b"/></radialGradient>
+    <radialGradient id="sphere" cx=".38" cy=".32" r=".75"><stop stop-color="#20382e" stop-opacity=".55"/><stop offset=".6" stop-color="#10211c"/><stop offset="1" stop-color="#08120f"/></radialGradient>
+    <linearGradient id="metal" x1="300" y1="60" x2="850" y2="460" gradientUnits="userSpaceOnUse"><stop stop-color="#34423c"/><stop offset=".36" stop-color="#192522"/><stop offset="1" stop-color="#0b1211"/></linearGradient>
+    <linearGradient id="light" x1="450" y1="100" x2="760" y2="390" gradientUnits="userSpaceOnUse"><stop stop-color="#ecffdb"/><stop offset=".46" stop-color="#c3f56b"/><stop offset="1" stop-color="#9ad8d0" stop-opacity=".2"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" stroke="#a5cbb7" stroke-opacity=".045"/></pattern>
+    <pattern id="dots" width="80" height="80" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#cadacf" fill-opacity=".2"/></pattern>
+    <filter id="shadow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="16"/></filter>
+    <clipPath id="globeClip"><circle cx="600" cy="250" r="150"/></clipPath>
+    <g id="chipNode">
+      <path d="M-33-15H-25M-33 0H-25M-33 15H-25M25-15H33M25 0H33M25 15H33M-15-33V-25M0-33V-25M15-33V-25M-15 25V33M0 25V33M15 25V33" stroke="#b4d7ac" stroke-opacity=".65" stroke-width="2"/>
+      <rect x="-25" y="-25" width="50" height="50" rx="5" fill="#0a1310" stroke="#b4d7ac" stroke-opacity=".55"/>
+      <rect x="-21" y="-21" width="42" height="42" rx="3" fill="url(#metal)" stroke="#577660" stroke-opacity=".55"/>
+      <rect x="-12" y="-12" width="24" height="24" rx="1" fill="#c3f56b" fill-opacity=".1" stroke="#c3f56b" stroke-opacity=".7"/>
+      <path d="M-7-8V8M0-8V8M7-8V8M-8-7H8M-8 0H8M-8 7H8" stroke="#c3f56b" stroke-opacity=".25" stroke-width=".75"/>
+      <path d="M-25-15V-25H-15" stroke="#e4ffcf" stroke-opacity=".9"/>
+    </g>
+  </defs>
+  <rect width="1200" height="500" fill="url(#ambient)"/>
+  <rect width="1200" height="500" fill="url(#grid)"/>
+  <rect width="1200" height="500" fill="url(#dots)"/>
+  <path d="M0 80H205L260 135H365M0 420H185L245 360H365M1200 120H1025L970 175H880M1200 400H1040L985 345H885" stroke="#c3f56b" stroke-opacity=".14"/>
+  <g fill="#c3f56b" opacity=".45"><circle cx="260" cy="135" r="3"/><circle cx="245" cy="360" r="3"/><circle cx="970" cy="175" r="3"/><circle cx="985" cy="345" r="3"/></g>
+
+  <ellipse cx="600" cy="405" rx="221" ry="22" fill="#000" opacity=".58" filter="url(#shadow)"/>
+  <circle cx="600" cy="250" r="186" stroke="#b8e6c7" stroke-opacity=".06"/>
+  <circle cx="600" cy="250" r="171" stroke="#a7cfb6" stroke-opacity=".14" stroke-dasharray="1 8"/>
+  <path d="M439 195A171 171 0 0 1 658 89M761 305A171 171 0 0 1 542 411" stroke="#a7cfb6" stroke-opacity=".32"/>
+  <circle cx="600" cy="250" r="150" fill="url(#sphere)" stroke="#a9d5b9" stroke-opacity=".5"/>
+  <g clip-path="url(#globeClip)" stroke="#9bc8b5" stroke-opacity=".24">
+    <ellipse cx="600" cy="250" rx="52" ry="150"/>
+    <ellipse cx="600" cy="250" rx="109" ry="150"/>
+    <ellipse cx="600" cy="250" rx="150" ry="55"/>
+    <ellipse cx="600" cy="190" rx="138" ry="43"/>
+    <ellipse cx="600" cy="310" rx="138" ry="43"/>
+    <path d="M450 250H750M600 100V400"/>
+  </g>
+  <path d="M600 100A150 150 0 0 0 450 250M450 250A150 55 0 0 0 682 296M600 100A52 150 0 0 1 640 344" stroke="url(#light)" stroke-width="1.5"/>
+  <path d="M348 171C394 99 477 103 513 170M687 170C757 114 831 151 855 292M510 332C465 390 400 364 365 312" stroke="#b6d9be" stroke-opacity=".17" stroke-dasharray="4 7"/>
+  <path d="M380 171H423L468 216H517M822 292H778L732 246H684M389 312H441L474 279H558" stroke="#aed9cb" stroke-opacity=".38"/>
+  <path d="M423 171L468 216H517M778 292L732 246H684" stroke="#c3f56b" stroke-opacity=".58"/>
+  <path d="M517 216L583 164L684 246L623 329L558 279Z" fill="#bde6c4" fill-opacity=".025" stroke="#c3f56b" stroke-opacity=".22"/>
+  <path d="M517 216L623 329M583 164L558 279M558 279L684 246" stroke="#9ad8d0" stroke-opacity=".2"/>
+
+  <g transform="translate(347 171)"><use href="#chipNode"/></g>
+  <g transform="translate(855 292)"><use href="#chipNode"/></g>
+  <g transform="translate(356 312) scale(.76)"><use href="#chipNode"/></g>
+  <g fill="#d5fda6">
+    <circle cx="517" cy="216" r="4"/><circle cx="583" cy="164" r="4"/><circle cx="684" cy="246" r="4"/>
+    <circle cx="623" cy="329" r="4"/><circle cx="558" cy="279" r="4"/>
+  </g>
+  <g stroke="#d5fda6" stroke-opacity=".3">
+    <circle cx="517" cy="216" r="9"/><circle cx="684" cy="246" r="9"/><circle cx="623" cy="329" r="9"/>
+  </g>
+  <path d="M600 49V72M600 428V451M397 250H420M780 250H803" stroke="#9ad8d0" stroke-opacity=".35"/>
+  <circle cx="658" cy="89" r="3" fill="#c3f56b" fill-opacity=".7"/>
+  <circle cx="542" cy="411" r="3" fill="#9ad8d0" fill-opacity=".6"/>
+  <path d="M38 48H62M50 36V60M1138 452H1162M1150 440V464" stroke="#c3f56b" stroke-opacity=".4"/>
+</svg>
+

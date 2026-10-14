@@ -1,0 +1,178 @@
+[
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "url": "https://openai.com/news/rss.xml",
+    "siteUrl": "https://openai.com/news/",
+    "aiOnly": true,
+    "publisher": "OpenAI",
+    "kind": "official",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://openai.com/news/",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://openai.com/news/rss.xml",
+      "entries": 1292,
+      "contentFingerprint": "26e2c4dd6cc9951fdbf9b8ce817eaf72d252e6c3be022a09d4f5a7e9639ec3b0",
+      "validFeed": true,
+      "freshAIcount": 4
+    }
+  },
+  {
+    "id": "google-ai",
+    "name": "Google AI",
+    "url": "https://blog.google/technology/ai/rss/",
+    "siteUrl": "https://blog.google/technology/ai/",
+    "publisher": "Google",
+    "kind": "official",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://blog.google/technology/ai/",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://blog.google/innovation-and-ai/technology/ai/rss/",
+      "entries": 20,
+      "contentFingerprint": "6bf7551895c85b314d79ad7c2c4a3011f873a03033c47e2ba9062d9357891809",
+      "validFeed": true,
+      "freshAIcount": 0
+    }
+  },
+  {
+    "id": "google-research",
+    "name": "Google Research",
+    "url": "https://research.google/blog/rss/",
+    "siteUrl": "https://research.google/blog/",
+    "category": "technical",
+    "publisher": "Google",
+    "kind": "research",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://research.google/blog/",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://research.google/blog/rss/",
+      "entries": 100,
+      "contentFingerprint": "1795a7b81716ca6ab4dc9ba98e16ede6f05045a52a6b66ad908da6389a5b1894",
+      "validFeed": true,
+      "freshAIcount": 1
+    }
+  },
+  {
+    "id": "hugging-face",
+    "name": "Hugging Face",
+    "url": "https://huggingface.co/blog/feed.xml",
+    "siteUrl": "https://huggingface.co/blog",
+    "aiOnly": true,
+    "category": "technical",
+    "publisher": "Hugging Face",
+    "kind": "official",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://huggingface.co/blog",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://huggingface.co/blog/feed.xml",
+      "entries": 876,
+      "contentFingerprint": "005e4419757ebe708f7987106b03e447fd43b4afd70220572058471ebf2fa499",
+      "validFeed": true,
+      "freshAIcount": 1
+    }
+  },
+  {
+    "id": "nvidia",
+    "name": "NVIDIA",
+    "url": "https://blogs.nvidia.com/blog/category/generative-ai/feed/",
+    "siteUrl": "https://blogs.nvidia.com/",
+    "aiOnly": true,
+    "publisher": "NVIDIA",
+    "kind": "official",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://blogs.nvidia.com/",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://blogs.nvidia.com/blog/category/generative-ai/feed/",
+      "entries": 18,
+      "contentFingerprint": "94fe70a632d644d88271d7eb8b24bbeafd52a1cef0c2f6ca5938261e34803515",
+      "validFeed": true,
+      "freshAIcount": 2
+    }
+  },
+  {
+    "id": "mit",
+    "name": "MIT News",
+    "url": "https://news.mit.edu/rss/topic/artificial-intelligence2",
+    "siteUrl": "https://news.mit.edu/topic/artificial-intelligence2",
+    "publisher": "Massachusetts Institute of Technology",
+    "kind": "research",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://news.mit.edu/topic/artificial-intelligence2",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://news.mit.edu/rss/topic/artificial-intelligence2",
+      "entries": 50,
+      "contentFingerprint": "ea4d80b8dfad489b0a7f90cde1231ec3731b4e8eb90fd320a19e24c5a3ccf47f",
+      "validFeed": true,
+      "freshAIcount": 1
+    }
+  },
+  {
+    "id": "techcrunch",
+    "name": "TechCrunch",
+    "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+    "siteUrl": "https://techcrunch.com/category/artificial-intelligence/",
+    "publisher": "TechCrunch",
+    "kind": "publisher",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://techcrunch.com/category/artificial-intelligence/",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "entries": 20,
+      "contentFingerprint": "a8df794b0165288fe73ef56c9a3c15a5e5d9846dcea487db8cdff58443ecca6a",
+      "validFeed": true,
+      "freshAIcount": 10
+    }
+  },
+  {
+    "id": "marktechpost",
+    "name": "MarkTechPost",
+    "url": "https://www.marktechpost.com/feed/",
+    "siteUrl": "https://www.marktechpost.com/",
+    "aiOnly": true,
+    "category": "technical",
+    "publisher": "MarkTechPost",
+    "kind": "publisher",
+    "trustReason": "Original publisher-operated feed used by the Dhivi application.",
+    "discoveryUrl": "https://www.marktechpost.com/",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "status": 200,
+      "finalUrl": "https://www.marktechpost.com/feed/",
+      "entries": 10,
+      "contentFingerprint": "a240adf1a4a62f4788a3be80e6f20fc05eae43b5cd77fb183f5a61f77257c6ba",
+      "validFeed": true,
+      "freshAIcount": 5
+    }
+  },
+  {
+    "id": "nature",
+    "name": "npj Digital Medicine",
+    "url": "https://www.nature.com/npjdigitalmed.rss",
+    "siteUrl": "https://www.nature.com/npjdigitalmed/",
+    "category": "clinical",
+    "publisher": "Springer Nature",
+    "kind": "research",
+    "contentType": "journal",
+    "trustReason": "Publisher-operated digital-medicine journal feed.",
+    "discoveryUrl": "https://www.nature.com/npjdigitalmed/",
+    "validation": {
+      "checkedAt": "2026-10-14T20:57:19.107Z",
+      "validFeed": false,
+      "error": "DTD is not allowed"
+    }
+  }
+]

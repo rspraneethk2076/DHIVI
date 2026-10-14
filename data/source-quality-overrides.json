@@ -1,0 +1,633 @@
+{
+  "publisherAliases": {
+    "MIT": "Massachusetts Institute of Technology",
+    "Berkeley AI Research": "University of California Berkeley",
+    "CMU Machine Learning": "Carnegie Mellon University",
+    "Apple Machine Learning Research": "Apple",
+    "Together": "Together AI",
+    "Stability": "Stability AI",
+    "Windsurf": "Cognition"
+  },
+  "sources": {
+    "tech-f666168db1f9": {
+      "enabled": false,
+      "disabledReason": "PCWorld RSS can stamp an evergreen buying guide with its modification date. The Chromebook roundup published2022-07-11 appeared with a2026-10-14 RSS date; original-publication freshness cannot be established from this feed.",
+      "qualityEvidence": ["https://www.pcworld.com/article/608636/best-chromebooks.html"]
+    },
+    "tech-f5082201667f": {
+      "enabled": false,
+      "disabledReason": "The WIRED Guides feed specializes in evergreen shopping recommendations and updated buying guides. Excluded from the live24-hour news window; original WIRED news remains available through its newsroom feed.",
+      "qualityEvidence": ["https://www.wired.com/feed/tag/wired-guide/latest/rss"]
+    },
+    "cp-nature": {
+      "kind": "publisher",
+      "contentType": "mixed",
+      "qualityNote": "Nature main feed mixes newsroom reporting, editorial content and journal papers; do not label every item as a peer-reviewed study."
+    },
+    "cp-nature-medicine": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-biotechnology": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-methods": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-neuroscience": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-reviews-genetics": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-genetics": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-reviews-drug-discovery": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-reviews-clinical-oncology": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-communications": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-scientific-reports": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-npj-digital-medicine": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-machine-intelligence": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-biomedical-engineering": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-computational-science": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-human-behaviour": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-mental-health": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-cancer": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-npj-precision-oncology": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-npj-genomic-medicine": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-subject-artificial-intelligence": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-subject-machine-learning": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-subject-medical-imaging": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-subject-biomedical-engineering": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-subject-drug-discovery": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-nature-subject-computational-biology-and-bioinformatics": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-open": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-health-and-care-informatics": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-digital-health-and-ai": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-innovations": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://innovations.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-bmj-global-health": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-quality-and-safety": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://qualitysafety.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-gut": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://gut.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-heart": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://heart.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-journal-of-neurology-neurosurgery-and-psychiatry": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-british-journal-of-ophthalmology": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://bjo.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-thorax": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://thorax.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-annals-of-the-rheumatic-diseases": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Archived BMJ current-issue feed last published2024-11-14; also carries issue-batch dates rather than a reliable current original-publication timestamp.",
+      "qualityEvidence": [
+        "https://ard.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-archives-of-disease-in-childhood": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://adc.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-emergency-medicine-journal": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://emj.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-journal-of-clinical-pathology": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://jcp.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-journal-of-medical-genetics": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://jmg.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-journal-of-medical-ethics": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://jme.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-journal-of-epidemiology-and-community-health": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue feed batches articles under the same dc:date upload timestamp; prism:publicationDate is the issue date. Neither proves original online publication within24h. For example JNNP current issue sets all12items to2026-10-13 while prism dates are2026-11-01.",
+      "qualityEvidence": [
+        "https://jech.bmj.com/rss/current.xml",
+        "https://jnnp.bmj.com/rss/current.xml",
+        "https://stg-blogs.bmj.com/bmj-journals-development-blog/category/rss-feeds/"
+      ]
+    },
+    "cp-bmj-open-respiratory-research": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-open-diabetes-research-and-care": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-open-heart": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-open-gastroenterology": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-neurology-open": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-bmj-mental-health": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-trauma-surgery-and-acute-care-open": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-the-bmj-latest-articles": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-cardiology-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-cardiology-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-dermatology-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-dermatology-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-internal-medicine-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-internal-medicine-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-neurology-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-neurology-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-oncology-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-oncology-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-ophthalmology-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-ophthalmology-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-otolaryngology-head-and-neck-surgery-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-otolaryngology-head-and-neck-surgery-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-pediatrics-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-pediatrics-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-psychiatry-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-psychiatry-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-surgery-online-first": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-surgery-current-issue": {
+      "kind": "research",
+      "contentType": "journal",
+      "enabled": false,
+      "disabledReason": "Current-issue pubDate is the issue release date and does not establish original online publication. JAMA current RSS assigns 2026-10-13 to article2854455, publicly first published online2026-09-18. Keep the corresponding Online First feed instead.",
+      "qualityEvidence": [
+        "https://jamanetwork.com/rss/site_3/67.xml",
+        "https://jamanetwork.com/journals/jama/fullarticle/2854455",
+        "https://jamanetwork.com/pages/rss/"
+      ]
+    },
+    "cp-jama-network-open": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jama-health-forum": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-plos-one": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-plos-medicine": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-plos-computational-biology": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-plos-biology": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-plos-genetics": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-plos-digital-health": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-plos-global-public-health": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-journal-of-medical-internet-research": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-ai": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-medical-informatics": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-mhealth-and-uhealth": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-human-factors": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-mental-health": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-formative-research": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-cancer": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-aging": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "cp-jmir-public-health-and-surveillance": {
+      "kind": "research",
+      "contentType": "journal"
+    },
+    "tech-0274e48fefb3": {
+      "enabled": false,
+      "disabledReason": "Cross-shard alias of cp-mit-artificial-intelligence: same normalized feed/final URL. Retained as screening evidence, not another active source.",
+      "duplicateOf": "cp-mit-artificial-intelligence"
+    },
+    "tech-51f827497597": {
+      "enabled": false,
+      "disabledReason": "Cross-shard alias of cp-berkeley-ai-research-blog: same normalized feed/final URL. Retained as screening evidence, not another active source.",
+      "duplicateOf": "cp-berkeley-ai-research-blog"
+    },
+    "tech-c07010ac5377": {
+      "enabled": false,
+      "disabledReason": "Cross-shard alias of cp-carnegie-mellon-machine-learning-blog: same normalized feed/final URL. Retained as screening evidence, not another active source.",
+      "duplicateOf": "cp-carnegie-mellon-machine-learning-blog"
+    },
+    "tech-abb25a1c4ec6": {
+      "name": "MIT News",
+      "publisher": "Massachusetts Institute of Technology",
+      "kind": "research",
+      "contentType": "research-news",
+      "aiOnly": false
+    },
+    "tech-8aca04c9ba3b": {
+      "name": "Microsoft Agent Framework",
+      "publisher": "Microsoft",
+      "kind": "official",
+      "contentType": "news",
+      "qualityEvidence": [
+        "https://devblogs.microsoft.com/agent-framework/feed/"
+      ]
+    },
+    "tech-2f60f37a567d": {
+      "name": "Devin Blog",
+      "publisher": "Cognition",
+      "kind": "official",
+      "contentType": "news",
+      "qualityEvidence": [
+        "https://devin.ai/rss.xml"
+      ]
+    },
+    "tech-33fe1b4dc7a6": {
+      "name": "Salesforce Blog",
+      "publisher": "Salesforce",
+      "kind": "official",
+      "contentType": "news",
+      "aiOnly": false,
+      "qualityNote": "Sitewide Salesforce company blog, not the narrower AI Research category feed."
+    },
+    "tech-efd5a9abfb41": {
+      "name": "MIT News",
+      "publisher": "Massachusetts Institute of Technology",
+      "kind": "research",
+      "contentType": "research-news",
+      "aiOnly": false
+    },
+    "tech-6bdf5c49590f": {
+      "name": "MIT News",
+      "publisher": "Massachusetts Institute of Technology",
+      "kind": "research",
+      "contentType": "research-news",
+      "aiOnly": false
+    }
+  }
+}
