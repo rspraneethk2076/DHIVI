@@ -29,14 +29,17 @@ const parser = new XMLParser({
 const AI = /\b(?:AI|A\.?I\.?|artificial intelligence|machine learning|deep learning|neural networks?|LLMs?|large language models?|frontier models?|generative AI|generative models?|generative adversarial networks?|ChatGPT|GPT[-\s]?\d|Gemini|Claude|Copilot|Codex|Qwen|Llama|DeepSeek|Mistral|Gemma|Veo|Imagen|AlphaFold|NotebookLM|DALL[- ]?E|Stable Diffusion|reinforcement learning|computer vision)\b/i;
 const JOURNAL_AI = /\b(?:AI|A\.?I\.?|artificial intelligence|machine learning|deep learning|neural networks?|LLMs?|large language models?|language models?|foundation models?|ChatGPT|GPT[-\s]?\d|NotebookLM|Gemma|Qwen|DeepSeek|reinforcement learning|computer vision|generative AI)\b/i;
 const SCIENTIFIC_AI = /\b(?:artificial intelligence|machine learning|deep learning|neural networks?|LLMs?|large language models?|language models?|foundation models?|ChatGPT|GPT[-\s]?\d|NotebookLM|reinforcement learning|computer vision|generative AI|AI[- ](?:based|assisted|powered|models?|systems?|algorithms?))\b/i;
-const CLINICAL = /\b(?:clinical|clinicians?|medical|medicine|health(?:care)?|hospitals?|patients?|physicians?|doctors?|diagnos(?:is|tic|tics|e|es)|radiology|oncology|cancer|drug discovery|biomedical|therapeutic|EHR|surgery|surgical|mental health|pathology)\b/i;
+const CLINICAL = /\b(?:clinical|clinicians?|medical|medicine|health(?:care)?|hospitals?|patients?|physicians?|doctors?|diagnos(?:is|tic|tics|e|es)|radiology|oncology|cancer|drug discovery|biomedical|therapeutic|EHR|surgery|surgical|mental health|depression|depressive|caregivers?|pathology)\b/i;
 const TOOL = /\b(?:tools?|apps?|applications?|assistants?|agents?|ChatGPT|Copilot|Gemini|Claude|Codex|platform|APIs?|SDK|workspace|studio|browser|plugins?)\b/i;
 const LAUNCH = /\b(?:launch(?:es|ed|ing)?|introduc(?:e[sd]?|ing)|unveil(?:s|ed|ing)?|releas(?:e[sd]?|ing)|new|now available|roll(?:s|ed|ing)? out|build with|try|preview|offers?|meet|top \d+|best)\b/i;
 const TECHNICAL = /\b(?:research|researchers?|papers?|benchmarks?|architectures?|models?|training|inference|reasoning|datasets?|weights|open[- ]source|transformers?|neural|diffusion|reinforcement|embeddings?|GPUs?|CUDA|fine[- ]tun(?:e|es|ing)|quantization|evaluation|coding|algorithms?)\b/i;
 const RESEARCH_FOCUS = /\b(?:reinforcement learning|(?:pre[- ]?|post[- ]?|agent |model |distributed |neural network )training|(?:model|neural|transformer|attention) architectures?|benchmarks?|(?:research|training) frameworks?|quantization|mixture[- ]of[- ]experts|gradient descent)\b/i;
 const GEOPOLITICAL = /\b(?:geopolitic(?:s|al)?|export controls?|export restrictions?|chip bans?|national security|AI sovereignty|sovereign AI|defen[cs]e|military|Pentagon|Air Force|diploma(?:cy|tic)|sanctions?|AI Act|AI (?:arms )?race|chip wars?|technology cold war)\b/i;
 const REGULATION = /\b(?:regulat(?:ion|ions|ory|e|es|ed|ing)|legislat(?:ion|ive|ors?)|lawmakers?|AI laws?|AI bills?|AI governance|AI polic(?:y|ies))\b/i;
+const BIOLOGICAL_REGULATION = /\b(?:(?:gene|genetic|genomic|epigenetic|transcriptional|post[- ]transcriptional|protein|cellular|metabolic|hormonal|biological)\s+regulat(?:ion|ions|ory|e|es|ed|ing)|regulatory variants?|regulation of (?:gene expression|transcription|metabolism|protein activity|hormones))\b/gi;
 const POLICY_ACTION = /\b(?:sign(?:s|ed)?|approv(?:e[sd]?|al)|enact(?:s|ed)?|pass(?:es|ed)?|ban(?:s|ned)?|restrict(?:s|ed|ion)?|impos(?:e[sd]?|ing)|govern(?:s|ed)?|governments?|Congress|Senate|minister|contract|procure(?:ment)?|investigat(?:e[sd]?|ion)|compliance deadline)\b/i;
+
+const policyText = value => value.replace(BIOLOGICAL_REGULATION, '');
 
 export function isWithinNewsWindow(publishedAt, now = Date.now()) {
   const timestamp = typeof publishedAt === 'number' ? publishedAt : Date.parse(publishedAt);
@@ -44,10 +47,10 @@ export function isWithinNewsWindow(publishedAt, now = Date.now()) {
 }
 
 export function hasGeopoliticalFocus(title, summary = '') {
-  if (GEOPOLITICAL.test(title) || REGULATION.test(title)) return true;
+  if (GEOPOLITICAL.test(title) || REGULATION.test(policyText(title))) return true;
   if (AI.test(`${title} ${summary}`) && /\b(?:laws?|bills?|Congress|Senate|Parliament|White House)\b/i.test(title) && /\b(?:govern|regulat|approv|sign|pass|ban|restrict|propos|draft|debat)\w*\b/i.test(title) && !/\b(?:scaling|power|physical|moore'?s)\b/i.test(title)) return true;
   const sentences = summary.split(/[.!?](?:\s|$)/);
-  if (sentences.some(sentence => (GEOPOLITICAL.test(sentence) || REGULATION.test(sentence)) && POLICY_ACTION.test(sentence))) return true;
+  if (sentences.some(sentence => (GEOPOLITICAL.test(sentence) || REGULATION.test(policyText(sentence))) && POLICY_ACTION.test(sentence))) return true;
   const content = `${title} ${summary}`;
   const country = /\b(?:US|U\.S\.|United States|China|Chinese|Europe|European|UK|India|Russia|Japan|Taiwan)\b/i;
   if (country.test(content) && /\b(?:AI competition|AI dominance|AI leadership|AI rivalry|compete in AI)\b/i.test(content)) return true;
@@ -61,7 +64,15 @@ function explicitJournal(source) {
   return source.contentType === 'journal' || /\bjournal\b/i.test(source.kind ?? '');
 }
 
-export function isEvergreenPromotion(title, source = {}) {
+export function isEvergreenPromotion(title, source = {}, summary = '') {
+  // Event pass offers in the displayed lead are promotions even when their
+  // headline omits the price. Actual AI launch reporting remains eligible.
+  const eventTitle = /\b(?:conference|summit|disrupt|expo|devday|convention|symposium|webinar|event|day\s+\d+)\b/i.test(title);
+  const passOffer = summary.split(/[.!?](?:\s|$)/).some(sentence => /\b(?:register|registration|tickets?|passes|pass)\b/i.test(sentence) && /\b(?:save|discount|on sale|early bird|last chance)\b/i.test(sentence));
+  const launchReporting = /\b(?:announc(?:e[sd]?|ing)|unveil(?:s|ed|ing)?|releas(?:e[sd]?|ing)|introduc(?:e[sd]?|ing)|launch(?:es|ed|ing)?|roll(?:s|ed|ing)? out)\b/i.test(title);
+  const aiSubject = AI.test(title) || /\b(?:OpenAI|Anthropic|DeepMind|xAI)\b/i.test(title);
+  const concreteProduct = /\b(?:models?|tools?|apps?|agents?|assistants?|APIs?|SDKs?|platforms?|devices?|chips?|features?|capabilities?|ChatGPT|GPT[-\s]?\d|Gemini|Claude|Copilot|Codex|Qwen|Llama|DeepSeek|Mistral|Gemma)\b/i.test(title);
+  if (eventTitle && passOffer && !(launchReporting && aiSubject && concreteProduct)) return true;
   if (source.aiOnly || source.kind === 'research' || explicitJournal(source)) return false;
   const consumer = /\b(?:laptops?|chromebooks?|headphones?|earbuds?|smartphones?|phones?|tablets?|monitors?|printers?|keyboards?|mice|webcams?|smartwatches?|TVs?|VPNs?|antivirus|AI tools?|AI apps?|AI subscriptions?)\b/i;
   if (/\b(?:buying guides?|buyer['’]?s guides?|which .{0,50} should you buy)\b/i.test(title)) return true;
@@ -162,7 +173,7 @@ function tagsFor(content, category) {
     ['Policy', /\b(?:regulat(?:ion|ions|ory)|legislation|AI Act|export controls?|sovereign|geopolitic(?:s|al)?)\b/i],
     ['Multimodal', /\b(?:multimodal|vision|image|video|audio|speech)\b/i],
   ];
-  return [category, ...patterns.filter(([, pattern]) => pattern.test(content)).map(([label]) => label)].slice(0, 5);
+  return [category, ...patterns.filter(([label, pattern]) => pattern.test(label === 'Policy' ? policyText(content) : content)).map(([label]) => label)].slice(0, 5);
 }
 
 function itemLink(item, base) {
@@ -219,7 +230,7 @@ export function parseFeed(xml, source, now = Date.now()) {
     const dateValue = text(item.pubDate ?? item.published ?? item['dc:date'] ?? item['prism:publicationDate']);
     const timestamp = Date.parse(dateValue);
     if (!title || title.length < 8 || !url || !isWithinNewsWindow(timestamp, now)) continue;
-    if (isEvergreenPromotion(title, source)) continue;
+    if (isEvergreenPromotion(title, source, summary)) continue;
     // Mixed feeds must justify inclusion in what the reader can actually see.
     // A later sidebar, footer or boilerplate AI mention cannot qualify a story.
     const relevance = `${title} ${summary}`;

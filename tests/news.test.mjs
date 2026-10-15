@@ -178,6 +178,36 @@ test('geopolitical classification recognizes meaningful policy and security stor
   assert.equal(nonAI.length, 0);
 });
 
+test('biological regulation is not government policy while actual AI regulation remains geopolitical', () => {
+  const title = 'Spatiotemporal AI-based modeling of gene regulation and variant effects in the developing human brain using Seal';
+  const journal = { ...source, kind: 'research', contentType: 'journal', category: 'clinical', aiOnly: false };
+  const description = 'Nature Neuroscience, Published online: 15 October 2026; doi:10.1038/s41593-026-02470-2 Seal is an artificial intelligence framework that predicts the effects of regulatory variants in 802 brain cell states, revealing spatiotemporal gene regulation and pinpointing cell types and developmental stages associated with neuropsychiatric conditions.';
+  const [article] = parseFeed(rss(item({ title, description })), journal, NOW);
+  assert.equal(article.category, 'clinical');
+  assert.equal(article.tags.includes('Policy'), false);
+  const [annotated] = annotateSpotlight([article], { now: NOW });
+  assert.equal(annotated.spotlight.reasons.some(reason => /policy|national.security|international competition/i.test(reason)), false);
+  assert.equal(classifyArticle('AI models investigate transcriptional regulation', 'A machine learning study of regulation of gene expression.'), 'technical');
+  for (const title of ['Government announces AI regulation for gene editing tools', 'Gene regulation researchers debate new AI regulation', 'US tightens export controls on AI chips']) {
+    assert.equal(classifyArticle(title), 'geopolitical', title);
+    const [policy] = parseFeed(rss(item({ title, description: 'Government regulations and AI policy are changing.' })), { ...source, aiOnly: false }, NOW);
+    assert.equal(policy.tags.includes('Policy'), true, title);
+  }
+});
+
+test('AI depression research and caregiver mental-health studies are clinical across mixed journals', () => {
+  const journal = { ...source, kind: 'research', contentType: 'journal', category: 'technical', aiOnly: false };
+  const articles = parseFeed(rss([
+    item({ title: 'Using valence and arousal scoring in speech to detect depressive symptoms: A study on family caregivers', description: 'These features were predictors in nine machine learning models evaluated under nested cross-validation.', url: 'https://publisher.example/depressive' }),
+    item({ title: 'Machine learning predicts depression risk', description: 'An evaluation of screening performance.', url: 'https://publisher.example/depression' }),
+    item({ title: 'AI supports family caregivers', description: 'A mental health intervention.', url: 'https://publisher.example/caregiver' }),
+  ].join('')), journal, NOW);
+  assert.equal(articles.length, 3);
+  assert.equal(articles.every(article => article.category === 'clinical' && article.tags.includes('Healthcare')), true);
+  const nonAI = parseFeed(rss(item({ title: 'Family caregivers report depressive symptoms', description: 'A qualitative interview study.' })), journal, NOW);
+  assert.equal(nonAI.length, 0);
+});
+
 const articleFixture = (id, overrides = {}) => ({ id, title: 'AI company reports a business update', summary: '', url: `https://publisher.example/${id}`, image: '/images/news.svg', source: 'Publisher One', sourceId: 'one', publishedAt: new Date(NOW - 3_600_000).toISOString(), category: 'news', tags: [], ...overrides });
 
 test('spotlight counts distinct publishers before deduplication and labels related coverage honestly', () => {
@@ -425,6 +455,24 @@ test('mixed publisher evergreen guides, retail reviews and promotions stay out w
   assert.deepEqual(articles.map(article => article.title), retained);
   const scholarly = parseFeed(rss(item({ title: 'A review: AI tools in clinical diagnosis', description: 'A systematic review of machine learning evidence.' })), { ...source, kind: 'research', contentType: 'journal' }, NOW);
   assert.equal(scholarly.length, 1);
+});
+
+test('visible event pass sales are excluded without removing real conference AI launch news', () => {
+  const xml = rss([
+    item({ title: 'TechCrunch Disrupt 2026: Day 2', description: 'Day 2 features themes across AI, roundtables, and side events. Register to save 50% on your pass.', url: 'https://publisher.example/event-sales' }),
+    item({ title: 'AI Summit 2026: Session schedule', description: 'AI speakers join the conference. Early bird tickets are on sale.', url: 'https://publisher.example/ai-sales' }),
+    item({ title: 'New AI summit 2026: Early bird passes', description: 'AI speakers join the summit. Register to save 50% on your pass.', url: 'https://publisher.example/new-ai-sales' }),
+    item({ title: 'Meet us at the AI conference for the best offers', description: 'AI speakers join the conference. Register to save 50% on your pass.', url: 'https://publisher.example/meet-ai-sales' }),
+    item({ title: 'AI summit announces discounted registration passes', description: 'AI speakers join the summit. Register to save 50% on your pass.', url: 'https://publisher.example/announced-passes' }),
+    item({ title: 'OpenAI launches a new AI model at DevDay', description: 'The new model improves reasoning. Register to save 50% on your conference pass.', url: 'https://publisher.example/model-launch' }),
+    item({ title: 'OpenAI releases GPT-6 at DevDay', description: 'The model improves inference. Register to save 50% on your conference pass.', url: 'https://publisher.example/conference-release' }),
+    item({ title: 'AI Summit presents new clinical research findings', description: 'Researchers report machine learning results for diagnosis.', url: 'https://publisher.example/research-news' }),
+    item({ title: 'AI Conference announces its next technical program', description: `Researchers report new machine learning results. ${'The program includes technical sessions. '.repeat(12)} Register to save 50% on your pass.`, url: 'https://publisher.example/hidden-footer' }),
+  ].join(''));
+  for (const aiOnly of [false, true]) {
+    const articles = parseFeed(xml, { ...source, kind: 'publisher', aiOnly }, NOW);
+    assert.deepEqual(articles.map(article => article.url), ['https://publisher.example/model-launch', 'https://publisher.example/conference-release', 'https://publisher.example/research-news', 'https://publisher.example/hidden-footer']);
+  }
 });
 
 test('explicit journals show a real bounded abstract evidence sentence instead of dropping buried ML methods', () => {
