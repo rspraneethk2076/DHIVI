@@ -187,6 +187,12 @@ test('biological regulation is not government policy while actual AI regulation 
   assert.equal(article.tags.includes('Policy'), false);
   const [annotated] = annotateSpotlight([article], { now: NOW });
   assert.equal(annotated.spotlight.reasons.some(reason => /policy|national.security|international competition/i.test(reason)), false);
+  const [technicalSourceArticle] = parseFeed(rss(item({ title, description })), { ...journal, category: 'technical' }, NOW);
+  assert.equal(technicalSourceArticle.category, 'clinical');
+  assert.equal(technicalSourceArticle.tags.includes('Healthcare'), true);
+  assert.equal(technicalSourceArticle.tags.includes('Policy'), false);
+  assert.equal(classifyArticle('AI predicts psychiatric conditions', 'A machine learning study.', 'technical'), 'clinical');
+  assert.equal(classifyArticle('AI models imitate brain activity', 'A neural architecture benchmark.', 'technical'), 'technical');
   assert.equal(classifyArticle('AI models investigate transcriptional regulation', 'A machine learning study of regulation of gene expression.'), 'technical');
   for (const title of ['Government announces AI regulation for gene editing tools', 'Gene regulation researchers debate new AI regulation', 'US tightens export controls on AI chips']) {
     assert.equal(classifyArticle(title), 'geopolitical', title);
