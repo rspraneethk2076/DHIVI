@@ -1,7 +1,7 @@
 import { MAX_ARTICLE_AGE, SOURCES, REFRESH_INTERVAL, WINDOW_HOURS, deduplicateArticles, fetchArticleImage, fetchFeed, isWithinNewsWindow } from './lib/feeds.mjs';
 import { annotateSpotlight } from './lib/spotlight.mjs';
 import { fetchCuratorDispatch } from './lib/curator.mjs';
-import { createNewsBlobCache } from './lib/news-cache.mjs';
+import { cacheStoreName, createNewsBlobCache } from './lib/news-cache.mjs';
 
 const MAX_STALE_AGE = MAX_ARTICLE_AGE;
 
@@ -120,7 +120,7 @@ export function projectNewsResponse(cache, now = Date.now()) {
 
 // Feed fetches share an hourly warm-instance cache. Responses themselves are
 // projected on every request so cached stories/scores age out immediately.
-export function createNewsService({ sources = SOURCES, creatorSource = null, curatorUrl = null, fetchImpl = fetch, clock = Date.now, timeout = 6_000, imageEnrichment = true, concurrency = 16, perHost = 2, sourceDeadlineMs = 38_000, totalDeadlineMs = 42_000, sharedCache = null } = {}) {
+function createScopedNewsService({ sources = SOURCES, creatorSource = null, curatorUrl = null, fetchImpl = fetch, clock = Date.now, timeout = 6_000, imageEnrichment = true, concurrency = 16, perHost = 2, sourceDeadlineMs = 38_000, totalDeadlineMs = 42_000, sharedCache = null } = {}) {
   const sourceCache = new Map();
   const imageCache = new Map();
   let creatorCache;
@@ -218,6 +218,23 @@ export function createNewsService({ sources = SOURCES, creatorSource = null, cur
       await pending;
     }
     return projectNewsResponse(responseCache, clock());
+  };
+}
+
+export function createNewsService(options = {}) {
+  const workers = new Map();
+  return function getNews(requestOptions = {}) {
+    // An instance may first handle a pre-publication request, then serve the
+    // published site. Memory and pending work must follow the same scope as
+    // durable storage, including source fallbacks and enriched thumbnails.
+    const scope = cacheStoreName(requestOptions.context);
+    const worker = workers.get(scope) ?? createScopedNewsService(options);
+    workers.delete(scope);
+    workers.set(scope, worker);
+    // Keep only the four most recently used scopes. Eviction does not cancel
+    // an in-flight request; its independent worker finishes for its callers.
+    if (workers.size > 4) workers.delete(workers.keys().next().value);
+    return worker(requestOptions);
   };
 }
 

@@ -70,6 +70,63 @@ test('a cold instance serves the shared hourly snapshot without refetching publi
   assert.equal(store.calls.filter(call => call.method === 'get').every(call => call.options.consistency === 'strong'), true);
 });
 
+test('a historical first request cannot seed published-site memory instead of the warmer snapshot', async () => {
+  const production = { deploy: { context: 'production', id: 'same-deploy', published: true } };
+  const historical = { deploy: { ...production.deploy, published: false } };
+  const stores = new Map();
+  const cache = createNewsBlobCache({ getStoreImpl: ({ name }) => {
+    if (!stores.has(name)) stores.set(name, fakeStore());
+    return stores.get(name);
+  }, log: () => {} });
+  const oldArticle = { ...article, id: 'historical', title: 'Machine learning results from the historical deployment', url: 'https://publisher.example/historical' };
+  await cache.write(fixture(), { sources: [source], now: NOW, context: production });
+  await cache.write(fixture({ articles: [oldArticle], coverageArticles: [oldArticle] }), { sources: [source], now: NOW, context: historical });
+  let fetches = 0;
+  const service = createNewsService({ sources: [source], sharedCache: cache, clock: () => NOW, imageEnrichment: false, fetchImpl: async () => { fetches++; throw new Error('must use the scope-specific shared snapshot'); } });
+  assert.equal((await service({ context: historical })).payload.articles[0].id, 'historical');
+  const published = await service({ context: production });
+  assert.equal(published.payload.articles[0].id, article.id);
+  assert.equal(published.payload.cacheStatus, 'shared');
+  assert.equal((await service({ context: historical })).payload.articles[0].id, 'historical');
+  assert.equal(fetches, 0);
+  assert.equal(stores.get(cacheStoreName(production)).calls.filter(call => call.method === 'get').length, 1);
+});
+
+test('concurrent different deployment scopes do not coalesce pending reads', async () => {
+  const contexts = [
+    { deploy: { context: 'production', id: 'deploy', published: false } },
+    { deploy: { context: 'production', id: 'deploy', published: true } },
+  ];
+  const reads = [];
+  const sharedCache = { read: ({ context }) => new Promise(resolve => reads.push({ scope: cacheStoreName(context), resolve })) };
+  const service = createNewsService({ sources: [source], sharedCache, clock: () => NOW, imageEnrichment: false, fetchImpl: async () => { throw new Error('must not collect'); } });
+  const historical = service({ context: contexts[0] });
+  const production = service({ context: contexts[1] });
+  const sameProduction = service({ context: contexts[1] });
+  assert.equal(reads.length, 2);
+  assert.notEqual(reads[0].scope, reads[1].scope);
+  const historicalArticle = { ...article, id: 'historical', url: 'https://publisher.example/historical' };
+  reads[0].resolve(fixture({ articles: [historicalArticle], coverageArticles: [historicalArticle] }));
+  reads[1].resolve(fixture());
+  const responses = await Promise.all([historical, production, sameProduction]);
+  assert.deepEqual(responses.map(response => response.payload.articles[0].id), ['historical', article.id, article.id]);
+});
+
+test('deployment-scope warm memory keeps at most four workers and evicts the least recently used', async () => {
+  const contexts = Array.from({ length: 5 }, (_, index) => ({ deploy: { context: 'production', id: `historical-${index}`, published: false } }));
+  const reads = [];
+  const sharedCache = { read: async ({ context }) => { reads.push(cacheStoreName(context)); return fixture(); } };
+  const service = createNewsService({ sources: [source], sharedCache, clock: () => NOW, imageEnrichment: false });
+  for (const context of contexts.slice(0, 4)) await service({ context });
+  await service({ context: contexts[0] });
+  await service({ context: contexts[4] });
+  await service({ context: contexts[0] });
+  assert.equal(reads.length, 5);
+  await service({ context: contexts[1] });
+  assert.equal(reads.length, 6);
+  assert.equal(reads.at(-1), cacheStoreName(contexts[1]));
+});
+
 test('shared and warm snapshots still age stories out before the hourly cache expires', async () => {
   const store = fakeStore();
   const cache = createNewsBlobCache({ store, log: () => {} });
