@@ -40,6 +40,7 @@ const BIOLOGICAL_REGULATION = /\b(?:(?:gene|genetic|genomic|epigenetic|transcrip
 const POLICY_ACTION = /\b(?:sign(?:s|ed)?|approv(?:e[sd]?|al)|enact(?:s|ed)?|pass(?:es|ed)?|ban(?:s|ned)?|restrict(?:s|ed|ion)?|impos(?:e[sd]?|ing)|govern(?:s|ed)?|governments?|Congress|Senate|minister|contract|procure(?:ment)?|investigat(?:e[sd]?|ion)|compliance deadline)\b/i;
 
 const policyText = value => value.replace(BIOLOGICAL_REGULATION, '');
+const biomedicalBrainFocus = value => /\bhuman brain\b/i.test(value) && /\b(?:gene regulation|gene expression|(?:genetic|regulatory) variants?|variant effects)\b/i.test(value);
 
 export function isWithinNewsWindow(publishedAt, now = Date.now()) {
   const timestamp = typeof publishedAt === 'number' ? publishedAt : Date.parse(publishedAt);
@@ -148,7 +149,7 @@ export function canonicalUrl(value) {
 export function classifyArticle(title, summary = '', sourceCategory) {
   const content = `${title} ${summary}`;
   if (sourceCategory === 'geopolitical' || hasGeopoliticalFocus(title, summary)) return 'geopolitical';
-  if (sourceCategory === 'clinical' || CLINICAL.test(content)) return 'clinical';
+  if (sourceCategory === 'clinical' || CLINICAL.test(content) || biomedicalBrainFocus(title)) return 'clinical';
   // A research launch can mention agents without being an end-user agent tool.
   // Explicit technical subjects in the headline take priority over launch verbs.
   if (RESEARCH_FOCUS.test(title)) return 'technical';
@@ -173,7 +174,7 @@ function tagsFor(content, category) {
     ['Policy', /\b(?:regulat(?:ion|ions|ory)|legislation|AI Act|export controls?|sovereign|geopolitic(?:s|al)?)\b/i],
     ['Multimodal', /\b(?:multimodal|vision|image|video|audio|speech)\b/i],
   ];
-  return [category, ...patterns.filter(([label, pattern]) => pattern.test(label === 'Policy' ? policyText(content) : content)).map(([label]) => label)].slice(0, 5);
+  return [category, ...patterns.filter(([label, pattern]) => pattern.test(label === 'Policy' ? policyText(content) : content) || label === 'Healthcare' && biomedicalBrainFocus(content)).map(([label]) => label)].slice(0, 5);
 }
 
 function itemLink(item, base) {
