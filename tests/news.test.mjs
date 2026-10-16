@@ -178,6 +178,35 @@ test('geopolitical classification recognizes meaningful policy and security stor
   assert.equal(nonAI.length, 0);
 });
 
+test('AI agency investigations and US military branches are geopolitical without acronym or color false positives', () => {
+  for (const title of [
+    'FTC subpoenas OpenAI and Anthropic following safety failures',
+    'Report: FTC probes Anthropic, OpenAI after Trump dismissed AI fears as a hoax',
+    'Federal Trade Commission investigates AI companies',
+    "US Navy could see first VTOL X-BAT UAV as Shield AI funding reaches $200 million",
+    'U.S. Navy tests AI navigation',
+  ]) assert.equal(classifyArticle(title), 'geopolitical', title);
+  assert.equal(classifyArticle('AI researchers benchmark an FTC method', '', 'technical'), 'technical');
+  assert.equal(classifyArticle('AI creates navy blue product images', '', 'technical'), 'technical');
+  assert.equal(classifyArticle('FDA approves an AI diagnostic tool for cancer'), 'clinical');
+});
+
+test('software incident diagnosis remains a tool or technical topic while medical diagnosis stays clinical', () => {
+  const title = 'Introducing Devin Oncall';
+  const description = 'Devin Oncall is now generally available. Devin automatically investigates alerts and bug reports and helps your team diagnose and resolve production incidents.';
+  const [article] = parseFeed(rss(item({ title, description })), source, NOW);
+  assert.equal(article.category, 'tools');
+  assert.equal(article.tags.includes('Healthcare'), false);
+  for (const summary of ['AI diagnoses software errors.', 'AI diagnostics for database outages.', 'AI helps diagnose server crashes.']) {
+    const [technical] = parseFeed(rss(item({ title: 'AI incident investigation benchmark', description: summary })), source, NOW);
+    assert.equal(technical.category, 'technical');
+    assert.equal(technical.tags.includes('Healthcare'), false);
+  }
+  assert.equal(classifyArticle('AI diagnoses pneumonia earlier'), 'clinical');
+  assert.equal(classifyArticle('AI diagnostic benchmark for patients'), 'clinical');
+  assert.equal(classifyArticle('AI assistants help doctors', description), 'clinical');
+});
+
 test('biological regulation is not government policy while actual AI regulation remains geopolitical', () => {
   const title = 'Spatiotemporal AI-based modeling of gene regulation and variant effects in the developing human brain using Seal';
   const journal = { ...source, kind: 'research', contentType: 'journal', category: 'clinical', aiOnly: false };

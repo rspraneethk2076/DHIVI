@@ -30,16 +30,19 @@ const AI = /\b(?:AI|A\.?I\.?|artificial intelligence|machine learning|deep learn
 const JOURNAL_AI = /\b(?:AI|A\.?I\.?|artificial intelligence|machine learning|deep learning|neural networks?|LLMs?|large language models?|language models?|foundation models?|ChatGPT|GPT[-\s]?\d|NotebookLM|Gemma|Qwen|DeepSeek|reinforcement learning|computer vision|generative AI)\b/i;
 const SCIENTIFIC_AI = /\b(?:artificial intelligence|machine learning|deep learning|neural networks?|LLMs?|large language models?|language models?|foundation models?|ChatGPT|GPT[-\s]?\d|NotebookLM|reinforcement learning|computer vision|generative AI|AI[- ](?:based|assisted|powered|models?|systems?|algorithms?))\b/i;
 const CLINICAL = /\b(?:clinical|clinicians?|medical|medicine|health(?:care)?|hospitals?|patients?|physicians?|doctors?|diagnos(?:is|tic|tics|e|es)|radiology|oncology|cancer|drug discovery|biomedical|therapeutic|EHR|surgery|surgical|mental health|neuropsychiatric|psychiatric|psychiatry|depression|depressive|caregivers?|pathology)\b/i;
-const TOOL = /\b(?:tools?|apps?|applications?|assistants?|agents?|ChatGPT|Copilot|Gemini|Claude|Codex|platform|APIs?|SDK|workspace|studio|browser|plugins?)\b/i;
+const TOOL = /\b(?:tools?|apps?|applications?|assistants?|agents?|ChatGPT|Copilot|Gemini|Claude|Codex|Devin|platform|APIs?|SDK|workspace|studio|browser|plugins?)\b/i;
 const LAUNCH = /\b(?:launch(?:es|ed|ing)?|introduc(?:e[sd]?|ing)|unveil(?:s|ed|ing)?|releas(?:e[sd]?|ing)|new|now available|roll(?:s|ed|ing)? out|build with|try|preview|offers?|meet|top \d+|best)\b/i;
 const TECHNICAL = /\b(?:research|researchers?|papers?|benchmarks?|architectures?|models?|training|inference|reasoning|datasets?|weights|open[- ]source|transformers?|neural|diffusion|reinforcement|embeddings?|GPUs?|CUDA|fine[- ]tun(?:e|es|ing)|quantization|evaluation|coding|algorithms?)\b/i;
 const RESEARCH_FOCUS = /\b(?:reinforcement learning|(?:pre[- ]?|post[- ]?|agent |model |distributed |neural network )training|(?:model|neural|transformer|attention) architectures?|benchmarks?|(?:research|training) frameworks?|quantization|mixture[- ]of[- ]experts|gradient descent)\b/i;
-const GEOPOLITICAL = /\b(?:geopolitic(?:s|al)?|export controls?|export restrictions?|chip bans?|national security|AI sovereignty|sovereign AI|defen[cs]e|military|Pentagon|Air Force|diploma(?:cy|tic)|sanctions?|AI Act|AI (?:arms )?race|chip wars?|technology cold war)\b/i;
+const GEOPOLITICAL = /\b(?:geopolitic(?:s|al)?|export controls?|export restrictions?|chip bans?|national security|AI sovereignty|sovereign AI|defen[cs]e|military|Pentagon|Air Force|(?:US|U\.S\.|United States)\s+(?:Navy|Army|Marine Corps|Space Force|Coast Guard)|diploma(?:cy|tic)|sanctions?|AI Act|AI (?:arms )?race|chip wars?|technology cold war)\b/i;
 const REGULATION = /\b(?:regulat(?:ion|ions|ory|e|es|ed|ing)|legislat(?:ion|ive|ors?)|lawmakers?|AI laws?|AI bills?|AI governance|AI polic(?:y|ies))\b/i;
 const BIOLOGICAL_REGULATION = /\b(?:(?:gene|genetic|genomic|epigenetic|transcriptional|post[- ]transcriptional|protein|cellular|metabolic|hormonal|biological)\s+regulat(?:ion|ions|ory|e|es|ed|ing)|regulatory variants?|regulation of (?:gene expression|transcription|metabolism|protein activity|hormones))\b/gi;
 const POLICY_ACTION = /\b(?:sign(?:s|ed)?|approv(?:e[sd]?|al)|enact(?:s|ed)?|pass(?:es|ed)?|ban(?:s|ned)?|restrict(?:s|ed|ion)?|impos(?:e[sd]?|ing)|govern(?:s|ed)?|governments?|Congress|Senate|minister|contract|procure(?:ment)?|investigat(?:e[sd]?|ion)|compliance deadline)\b/i;
 
 const policyText = value => value.replace(BIOLOGICAL_REGULATION, '');
+// Software incident diagnosis is not evidence of a medical topic. Keep other
+// clinical terms intact so a genuinely clinical story still takes precedence.
+const clinicalText = value => value.replace(/\bdiagnos(?:is|tics?|e[sd]?|ing)\b(?=[^.!?]{0,80}\b(?:production incidents?|software (?:bugs?|errors?|issues?)|(?:application|database|server|network) (?:failures?|outages?|faults?|crashes?))\b)/gi, '');
 const biomedicalBrainFocus = value => /\bhuman brain\b/i.test(value) && /\b(?:gene regulation|gene expression|(?:genetic|regulatory) variants?|variant effects)\b/i.test(value);
 
 export function isWithinNewsWindow(publishedAt, now = Date.now()) {
@@ -49,6 +52,7 @@ export function isWithinNewsWindow(publishedAt, now = Date.now()) {
 
 export function hasGeopoliticalFocus(title, summary = '') {
   if (GEOPOLITICAL.test(title) || REGULATION.test(policyText(title))) return true;
+  if ((AI.test(`${title} ${summary}`) || /\b(?:OpenAI|Anthropic|DeepMind|xAI)\b/i.test(title)) && /\b(?:FTC|Federal Trade Commission)\s+(?:subpoena(?:s|ed)?|probes?|probed|probing|investigat(?:es?|ed|ing))\b/i.test(title)) return true;
   if (AI.test(`${title} ${summary}`) && /\b(?:laws?|bills?|Congress|Senate|Parliament|White House)\b/i.test(title) && /\b(?:govern|regulat|approv|sign|pass|ban|restrict|propos|draft|debat)\w*\b/i.test(title) && !/\b(?:scaling|power|physical|moore'?s)\b/i.test(title)) return true;
   const sentences = summary.split(/[.!?](?:\s|$)/);
   if (sentences.some(sentence => (GEOPOLITICAL.test(sentence) || REGULATION.test(policyText(sentence))) && POLICY_ACTION.test(sentence))) return true;
@@ -149,7 +153,7 @@ export function canonicalUrl(value) {
 export function classifyArticle(title, summary = '', sourceCategory) {
   const content = `${title} ${summary}`;
   if (sourceCategory === 'geopolitical' || hasGeopoliticalFocus(title, summary)) return 'geopolitical';
-  if (sourceCategory === 'clinical' || CLINICAL.test(content) || biomedicalBrainFocus(title)) return 'clinical';
+  if (sourceCategory === 'clinical' || CLINICAL.test(clinicalText(content)) || biomedicalBrainFocus(title)) return 'clinical';
   // A research launch can mention agents without being an end-user agent tool.
   // Explicit technical subjects in the headline take priority over launch verbs.
   if (RESEARCH_FOCUS.test(title)) return 'technical';
@@ -174,7 +178,7 @@ function tagsFor(content, category) {
     ['Policy', /\b(?:regulat(?:ion|ions|ory)|legislation|AI Act|export controls?|sovereign|geopolitic(?:s|al)?)\b/i],
     ['Multimodal', /\b(?:multimodal|vision|image|video|audio|speech)\b/i],
   ];
-  return [category, ...patterns.filter(([label, pattern]) => pattern.test(label === 'Policy' ? policyText(content) : content) || label === 'Healthcare' && biomedicalBrainFocus(content)).map(([label]) => label)].slice(0, 5);
+  return [category, ...patterns.filter(([label, pattern]) => pattern.test(label === 'Policy' ? policyText(content) : label === 'Healthcare' ? clinicalText(content) : content) || label === 'Healthcare' && biomedicalBrainFocus(content)).map(([label]) => label)].slice(0, 5);
 }
 
 function itemLink(item, base) {
