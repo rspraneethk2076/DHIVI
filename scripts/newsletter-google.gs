@@ -113,3 +113,21 @@ function runMorningDigest() {
     PropertiesService.getScriptProperties().setProperty('LAST_DIGEST', JSON.stringify({day:day,sent:sent,checkedAt:new Date().toISOString()}));
   } finally { lock.releaseLock(); }
 }
+
+// A deliberate operator action, never a timer or public bridge action.
+// Only a confirmed subscription belonging to the service owner can receive it.
+function sendTestDigest() {
+  if (Session.getEffectiveUser().getEmail().toLowerCase() !== DHIVI_OWNER) throw new Error('Wrong sender');
+  if (PropertiesService.getScriptProperties().getProperty('READY') !== 'true') throw new Error('Newsletter not ready');
+  var row = newsletterSheet().getDataRange().getValues().find(function(value,index) { return index > 0 && value[0] === DHIVI_OWNER && value[1] === 'active'; });
+  if (!row) throw new Error('Confirm the owner test subscription first.');
+  if (MailApp.getRemainingDailyQuota() < 1) throw new Error('Daily mail quota exhausted');
+  var response = UrlFetchApp.fetch(DHIVI_APP + '/.netlify/functions/newsletter-digest', {muteHttpExceptions:true});
+  if (response.getResponseCode() !== 200) throw new Error('Fresh digest unavailable');
+  var digest = JSON.parse(response.getContentText());
+  if (digest.date !== Utilities.formatDate(new Date(), DHIVI_ZONE, 'yyyy-MM-dd') || !Array.isArray(digest.articles) || !digest.articles.length) throw new Error('No current digest');
+  if (digest.articles.some(function(article) { var date = Date.parse(article.publishedAt); return !isFinite(date) || date > Date.now() || Date.now() - date > 86400000; })) throw new Error('Digest outside the strict 24-hour window');
+  var link = DHIVI_APP + '/#newsletter=unsubscribe&token=' + row[5];
+  MailApp.sendEmail({to:DHIVI_OWNER,subject:'[TEST] ' + digest.subject,name:'Dhivi Live AI News',body:digest.text.split('{{UNSUBSCRIBE_URL}}').join(link),htmlBody:digest.html.split('{{UNSUBSCRIBE_URL}}').join(link.replace(/&/g,'&amp;'))});
+  console.log('Owner test digest sent. Normal daily delivery state is unchanged.');
+}

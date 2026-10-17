@@ -85,3 +85,19 @@ test('Google quota exhaustion never sends or reserves unsent recipients',async()
   const f=await googleFixture();f.call({action:'subscribe',email:'reader@example.com'});const token=f.messages[0].body.match(/token=([a-f0-9]{64})/u)[1];f.call({action:'confirm',token});
   f.setQuota(0);assert.throws(()=>f.context.runMorningDigest(),/quota/);assert.equal(f.rows[1][6],'');assert.equal(f.messages.length,1);
 });
+
+test('operator test digest requires the owner’s confirmed consent and never advances the daily delivery reservation',async()=>{
+  const f=await googleFixture();assert.throws(()=>f.context.sendTestDigest(),/Confirm/);
+  const owner=f.context.DHIVI_OWNER;f.call({action:'subscribe',email:owner});
+  const token=f.messages[0].body.match(/token=([a-f0-9]{64})/u)[1];f.call({action:'confirm',token});
+  f.context.sendTestDigest();assert.equal(f.messages.length,2);assert.equal(f.messages[1].to,owner);
+  assert.match(f.messages[1].subject,/^\[TEST\] Dhivi Morning Signal/);assert.ok(!f.messages[1].htmlBody.includes('{{UNSUBSCRIBE_URL}}'));
+  assert.equal(f.rows[1][6],'');assert.equal(f.rows[1][7],'');
+  f.call({action:'unsubscribe',token:f.rows[1][5]});assert.throws(()=>f.context.sendTestDigest(),/Confirm/);assert.equal(f.messages.length,2);
+});
+
+test('operator test digest respects remaining Gmail quota',async()=>{
+  const f=await googleFixture();f.call({action:'subscribe',email:f.context.DHIVI_OWNER});
+  const token=f.messages[0].body.match(/token=([a-f0-9]{64})/u)[1];f.call({action:'confirm',token});
+  f.setQuota(0);assert.throws(()=>f.context.sendTestDigest(),/quota/);assert.equal(f.messages.length,1);
+});
