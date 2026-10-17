@@ -130,7 +130,7 @@ test('serialized progress and read history resume at the next unread story, and 
     assert.deepEqual(unread.map(article => article.id), ['a', 'c', 'd']);
     assert.equal(resolveReadingPosition(restoredProgress, unread).articleId, 'c');
   }
-  assert.equal(filterArticles(items, { category: 'saved', query: 'record-b', now: NOW, readIds }).length, 0);
+  assert.equal(filterArticles(items, { category: 'saved', query: 'record-b', now: NOW, readIds }).length, 1);
   const undone = unmarkArticleRead(restoredHistory, 'b', NOW);
   const visibleAgain = filterArticles(items, { now: NOW, readIds: Object.keys(undone) });
   assert.equal(resolveReadingPosition(restoredProgress, visibleAgain).articleId, 'b');

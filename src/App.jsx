@@ -30,13 +30,13 @@ import {
   Volume2,
   Square,
   CheckCheck,
+  Mail,
 } from "lucide-react";
 import {
   LABELS,
   REFRESH_INTERVAL,
   filterArticles,
   isFreshArticle,
-  normalizeArticle,
   normalizeCachedFeed,
   readStorage,
   relativeTime,
@@ -50,7 +50,10 @@ import {
 } from "./reading-state.mjs";
 import { useReadingProgress } from "./use-reading-progress.jsx";
 import { createSpeechReader } from "./speech-reader.mjs";
+import { createContinuousReader } from "./continuous-reader.mjs";
+import { normalizeSavedArchive, changeSavedArchive } from "./saved-archive.mjs";
 import SourceCoverage from "./SourceCoverage.jsx";
+import Newsletter from "./Newsletter.jsx";
 
 const NAV = [
   { id: "all", icon: Newspaper },
@@ -74,10 +77,7 @@ const TOPICS = [
 ];
 
 function initialSaved() {
-  const saved = readStorage("saved:v1", []);
-  return Array.isArray(saved)
-    ? saved.map(normalizeArticle).filter(Boolean).slice(0, 200)
-    : [];
+  return normalizeSavedArchive(readStorage("saved:v1", []));
 }
 
 const ArticleCard = React.memo(function ArticleCard({
@@ -93,6 +93,7 @@ const ArticleCard = React.memo(function ArticleCard({
   onMarkRead,
   listening,
   speechSupported,
+  read,
 }) {
   const [failed, setFailed] = useState(false);
   const fallback = failed || !article.hasPublisherImage;
@@ -247,10 +248,11 @@ const ArticleCard = React.memo(function ArticleCard({
           <button
             className="mark-read-button"
             onClick={() => onMarkRead(article)}
-            aria-label={`Mark as read: ${article.title}`}
+            aria-label={read ? `Read: ${article.title}` : `Mark as read: ${article.title}`}
+            disabled={read}
           >
             <CheckCheck size={15} />
-            Mark as read
+            {read ? "Read · kept in archive" : "Mark as read"}
           </button>
         </div>
       </div>
@@ -282,6 +284,11 @@ export default function App() {
     status: "idle",
   });
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [continuousState, setContinuousState] = useState({ enabled: false, phase: 'idle', number: 0 });
+  const [audioGap, setAudioGap] = useState(() => [1, 3, 5, 10, 15].includes(readStorage('audio-gap:v1', 3)) ? readStorage('audio-gap:v1', 3) : 3);
+  const [voiceRate, setVoiceRate] = useState(() => [0.75, 1, 1.25, 1.5].includes(readStorage('voice-rate:v1', 1)) ? readStorage('voice-rate:v1', 1) : 1);
+  const [audioOpen, setAudioOpen] = useState(false);
+  const [audioError, setAudioError] = useState('');
   const [interests, setInterests] = useState(() => {
     const value = readStorage("interests:v1", {});
     return value && typeof value === "object" && !Array.isArray(value)
@@ -310,6 +317,7 @@ export default function App() {
   const [pending, setPending] = useState(null);
   const [toast, setToast] = useState("");
   const [showHelp, setShowHelp] = useState(false);
+  const [newsletterOpen, setNewsletterOpen] = useState(() => new URLSearchParams(window.location.hash.slice(1)).has('newsletter'));
   const feedRef = useRef(null);
   const searchRef = useRef(null);
   const currentArticles = useRef(articles);
@@ -319,6 +327,10 @@ export default function App() {
   const pauseTimer = useRef(null);
   const modalRef = useRef(null);
   const readerRef = useRef(null);
+  const continuousRef = useRef(null);
+  const audioSettings = useRef({});
+  audioSettings.current = { mode: readoutMode, gap: audioGap, rate: voiceRate };
+  const visibleRef = useRef([]);
   const lastAttemptRef = useRef(null);
   const wheelRemainder = useRef(0);
   const savedIds = useMemo(() => new Set(saved.map((a) => a.id)), [saved]);
@@ -337,6 +349,7 @@ export default function App() {
     : filterArticles(base, { category, query, mode, interests, now }).filter(
         (article) => readIds.has(article.id),
       ).length;
+  visibleRef.current = visible;
   const notify = useCallback((message) => {
     setToast(message);
     setUndoRead(null);
@@ -374,7 +387,9 @@ export default function App() {
     !interactionPause &&
     !focused &&
     !showHelp &&
+    !newsletterOpen &&
     !listening &&
+    !continuousState.enabled &&
     !reading.restoring &&
     category !== "saved" &&
     visible.length > 0;
@@ -396,31 +411,70 @@ export default function App() {
   useEffect(() => {
     writeStorage("readout-mode:v1", readoutMode);
   }, [readoutMode]);
+  useEffect(() => { writeStorage('audio-gap:v1', audioGap); }, [audioGap]);
+  useEffect(() => { writeStorage('voice-rate:v1', voiceRate); }, [voiceRate]);
   useEffect(() => {
     const reader = createSpeechReader({
       synthesis: window.speechSynthesis,
       Utterance: window.SpeechSynthesisUtterance,
       onState: setSpeechState,
-      onError: notify,
+      onError: message => { if (continuousRef.current?.enabled) continuousRef.current.stop(); setAudioError(message); notify(message); },
+      onComplete: id => continuousRef.current?.completed(id),
     });
     readerRef.current = reader;
+    const current = () => {
+      const feed = feedRef.current;
+      if (!feed) return null;
+      const top = feed.getBoundingClientRect().top;
+      const card = [...feed.querySelectorAll('[data-article-id]')].find(node => node.getBoundingClientRect().bottom > top + 24);
+      return visibleRef.current.find(article => article.id === card?.getAttribute('data-article-id'));
+    };
+    continuousRef.current = createContinuousReader({
+      reader, current, settings: () => audioSettings.current,
+      onState: setContinuousState, onEnd: notify,
+      next: (id, spoken) => {
+        const list = visibleRef.current;
+        const index = list.findIndex(article => article.id === id);
+        const article = list.slice(index < 0 ? 0 : index + 1).find(item => !spoken.has(item.id));
+        const feed = feedRef.current;
+        const card = feed && [...feed.querySelectorAll('[data-article-id]')].find(node => node.getAttribute('data-article-id') === article?.id);
+        if (card) feed.scrollTop += card.getBoundingClientRect().top - feed.getBoundingClientRect().top;
+        return article;
+      },
+    });
     setSpeechSupported(reader.supported);
     return () => {
+      continuousRef.current?.stop();
+      continuousRef.current = null;
       reader.dispose();
       readerRef.current = null;
     };
   }, [notify]);
   useEffect(() => {
+    continuousRef.current?.stop();
+  }, [category, query, mode, readoutMode]);
+  useEffect(() => {
+    if (showHelp || newsletterOpen) { continuousRef.current?.stop(); readerRef.current?.stop(); }
+  }, [showHelp, newsletterOpen]);
+  useEffect(() => {
+    const stopOnLeave = () => { if (document.hidden) { continuousRef.current?.stop(); readerRef.current?.stop(); } };
+    document.addEventListener('visibilitychange', stopOnLeave);
+    return () => document.removeEventListener('visibilitychange', stopOnLeave);
+  }, []);
+  useEffect(() => {
     if (
       listening &&
       !visible.some((article) => article.id === speechState.articleId)
-    )
+    ) {
+      continuousRef.current?.stop();
       readerRef.current?.stop();
+    }
   }, [listening, speechState.articleId, visible]);
   useEffect(() => {
     const syncReadHistory = (event) => {
       if (event.key === "dhivi:read:v1")
         setReadHistory(normalizeReadHistory(readStorage("read:v1", {})));
+      if (event.key === "dhivi:saved:v1") setSaved(initialSaved());
     };
     window.addEventListener("storage", syncReadHistory);
     return () => window.removeEventListener("storage", syncReadHistory);
@@ -567,6 +621,7 @@ export default function App() {
 
   const applyPending = useCallback(() => {
     if (!pending) return;
+    continuousRef.current?.stop();
     setArticles(pending.articles);
     currentArticles.current = pending.articles;
     setPending(null);
@@ -642,6 +697,7 @@ export default function App() {
   }, []);
 
   const manualScroll = () => {
+    continuousRef.current?.moved();
     reading.cancelRestore();
     setInteractionPause(true);
     clearTimeout(pauseTimer.current);
@@ -666,6 +722,9 @@ export default function App() {
   }, []);
   const readOut = useCallback(
     (article) => {
+      const alreadyReading = readerRef.current?.getState().articleId === article.id;
+      setAudioError('');
+      continuousRef.current?.stop();
       const reader = readerRef.current;
       if (!reader?.supported) {
         notify("Readout is unavailable in this browser.");
@@ -673,28 +732,29 @@ export default function App() {
       }
       setFocused(false);
       reading.checkpoint();
-      if (reader.getState().articleId === article.id) reader.stop();
-      else reader.read(article, readoutMode);
+      if (alreadyReading) reader.stop();
+      else reader.read(article, readoutMode, { rate: audioSettings.current.rate });
     },
     [readoutMode, notify, reading.checkpoint],
   );
   const markRead = useCallback(
     (article) => {
+      continuousRef.current?.stop();
       if (readerRef.current?.getState().articleId === article.id)
         readerRef.current.stop();
-      reading.beforeRemove(article.id);
+      if (category !== 'saved') reading.beforeRemove(article.id);
       const next = markArticleRead(readHistory, article.id);
       const persisted = writeStorage("read:v1", next);
       setReadHistory(next);
       setFocused(false);
       notify(
         persisted
-          ? "Marked as read. Story hidden."
+          ? savedIds.has(article.id) ? "Marked as read. Kept in your saved archive." : "Marked as read. Story hidden."
           : "Marked as read for this visit. Browser storage is unavailable.",
       );
       setUndoRead(article);
     },
-    [readHistory, reading.beforeRemove, notify],
+    [readHistory, reading.beforeRemove, notify, savedIds, category],
   );
   const undoMarkRead = useCallback(() => {
     if (!undoRead) return;
@@ -724,17 +784,17 @@ export default function App() {
   const toggleSave = useCallback(
     (article) => {
       const removing = savedIds.has(article.id);
-      const next = removing
-        ? saved.filter((a) => a.id !== article.id)
-        : [article, ...saved].slice(0, 200);
+      const next = changeSavedArchive(initialSaved(), article, removing);
       if (!writeStorage("saved:v1", next)) {
         notify(
-          "Browser storage is unavailable. This save will last for this visit.",
+          "Couldn’t save: device storage is full or blocked. Existing saves are kept. Free space and try again.",
         );
+        return;
       } else
         notify(
-          removing ? "Story removed from saved." : "Saved for a little later.",
+          removing ? "Story removed from saved." : "Saved on this device. This story won’t expire after 24 hours.",
         );
+      if (!removing) navigator.storage?.persist?.().catch(() => {});
       setSaved(next);
       if (!removing) learn(article);
     },
@@ -824,6 +884,7 @@ export default function App() {
             Your daily intelligence<span className="green">.</span>
           </span>
           <div className="utility-right">
+            <button className="newsletter-trigger" onClick={() => setNewsletterOpen(true)} aria-label="Subscribe to the morning newsletter"><Mail size={16}/><span>Morning briefing</span></button>
             <span className={`feed-status ${error ? "degraded" : ""}`}>
               <span className="live-dot" />
               {loading
@@ -921,6 +982,24 @@ export default function App() {
                 {category === "saved" ? "SAVED" : "24H ONLY"}
               </span>
             </div>
+            <div className="audio-session">
+              <button aria-expanded={audioOpen} onClick={() => setAudioOpen(value => !value)}>
+                <Volume2 size={16} /> Hands-free news <span>{continuousState.enabled ? continuousState.phase === 'interval' ? 'Taking a breath' : 'Reading aloud' : 'Listen as you browse'}</span>
+              </button>
+              <button className="audio-start" disabled={!speechSupported || reading.restoring || (!visible.length && !continuousState.enabled)}
+                aria-pressed={continuousState.enabled} onClick={() => {
+                  if (continuousRef.current?.enabled) continuousRef.current.stop();
+                  else { setAudioError(''); setFocused(false); reading.checkpoint(); continuousRef.current?.start(); }
+                }}>{continuousState.enabled ? 'Stop hands-free' : 'Start hands-free'}</button>
+              {audioOpen && <div className="audio-options">
+                <label>Read <select aria-label="Hands-free content" value={readoutMode} onChange={event => chooseReadoutMode(event.target.value)}><option value="summary">Headline + summary</option><option value="headline">Headline only</option></select></label>
+                <label>Gap <select aria-label="Gap between stories" value={audioGap} onChange={event => setAudioGap(Number(event.target.value))}>{[1,3,5,10,15].map(gap => <option key={gap} value={gap}>{gap} seconds</option>)}</select></label>
+                <label>Voice <select aria-label="Voice speed" value={voiceRate} onChange={event => setVoiceRate(Number(event.target.value))}>{[0.75,1,1.25,1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></label>
+                <p>One tap starts the visible story. The feed pauses for speech, waits between stories, then moves to the next. Scroll manually to change stories. Playback stops when you leave this tab.</p>
+              </div>}
+              {audioError && <p className="audio-error" role="status">{audioError}</p>}
+            </div>
+            {category === 'saved' && <div className="archive-note">Your device archive · no 24-hour expiry · read stories stay here until you unsave them.</div>}
             {mode === "spotlight" && category !== "saved" && (
               <details className="spotlight-briefing">
                 <summary>
@@ -987,6 +1066,7 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => {
+                    continuousRef.current?.stop();
                     readerRef.current?.stop();
                     setFocused(false);
                   }}
@@ -1054,6 +1134,7 @@ export default function App() {
                         listening && speechState.articleId === article.id
                       }
                       speechSupported={speechSupported}
+                      read={category === 'saved' && readIds.has(article.id)}
                     />
                   ))}
                   <div className="end-of-feed">
@@ -1293,6 +1374,7 @@ export default function App() {
           {undoRead && <button onClick={undoMarkRead}>Undo</button>}
         </div>
       )}
+      <Newsletter open={newsletterOpen} onClose={() => setNewsletterOpen(false)} />
       {showHelp && (
         <div className="modal-backdrop" onClick={() => setShowHelp(false)}>
           <section
@@ -1337,7 +1419,7 @@ export default function App() {
             <p>
               <strong>For you</strong> gently prioritizes categories you read
               and save. Your reading preferences and saved stories stay in this
-              browser. Clear the browser’s site data to reset them.
+              browser. Saved stories have no 24-hour expiry and are kept even after marking them read. Clearing site data removes this device’s archive.
             </p>
             <SourceCoverage info={feedInfo} loading={loading} error={error} onReadSource={selectSource} />
             <p>
@@ -1346,7 +1428,7 @@ export default function App() {
               Your place, feed settings, and scroll preference are remembered in
               this browser. If a story expires, you resume at the next available
               unread story. <strong>Mark as read</strong> hides a story across
-              the feed, search, and saved views. Use Undo to bring it back.
+              the live feed and search. Saved stories remain in your archive with a read badge. Use Undo to bring a story back to the live feed.
             </p>
             {readIds.size > 0 && (
               <button

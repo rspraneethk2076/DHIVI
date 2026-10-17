@@ -205,7 +205,7 @@ export function filterArticles(
       : new Set(Array.isArray(readIds) ? readIds : []);
   const filtered = articles.filter(
     (a) =>
-      !readSet.has(a.id) &&
+      (category === "saved" || !readSet.has(a.id)) &&
       (category === "saved"
         ? Date.parse(a.publishedAt) <= now
         : isFreshArticle(a, now)) &&

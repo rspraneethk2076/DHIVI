@@ -58,7 +58,7 @@ function playbackError(code) {
  * onState receives copies; speaking includes the gaps between serial chunks.
  * read() returns whether playback was started, and defaults to summary mode.
  */
-export function createSpeechReader({ synthesis, Utterance, onState, onError, onEvent } = {}) {
+export function createSpeechReader({ synthesis, Utterance, onState, onError, onEvent, onComplete } = {}) {
   const supported = Boolean(synthesis && typeof synthesis.speak === 'function' && typeof synthesis.cancel === 'function' && typeof Utterance === 'function');
   let state = idleState();
   let currentUtterance = null;
@@ -109,7 +109,7 @@ export function createSpeechReader({ synthesis, Utterance, onState, onError, onE
     if (message) reportError(message);
   }
 
-  function read(article, mode = 'summary') {
+  function read(article, mode = 'summary', options = {}) {
     if (disposed) return false;
     const token = ++requestToken;
     diagnose('read', { articleId: article?.id ?? null, mode: mode === 'headline' ? 'headline' : 'summary' });
@@ -132,7 +132,8 @@ export function createSpeechReader({ synthesis, Utterance, onState, onError, onE
     const selectedMode = mode === 'headline' ? 'headline' : 'summary';
     const summary = selectedMode === 'summary' ? cleanText(article?.summary) : '';
     const headline = /[.!?…]["'”’\])]*$/u.test(title) ? title : `${title}.`;
-    const text = boundedText(summary ? `${headline} ${summary}` : title);
+    const introduction = cleanText(options.introduction).slice(0, 60);
+    const text = boundedText(`${introduction ? `${introduction} ` : ''}${summary ? `${headline} ${summary}` : title}`);
     const chunks = chunkText(text);
     const inventory = availableVoices(synthesis);
     const choices = englishVoices(inventory);
@@ -162,10 +163,12 @@ export function createSpeechReader({ synthesis, Utterance, onState, onError, onE
       if (disposed || token !== requestToken) return false;
       if (index >= chunks.length) {
         settle(token);
+        if (typeof onComplete === 'function') onComplete(article?.id);
         return true;
       }
       try {
         const utterance = new Utterance(chunks[index]);
+        utterance.rate = Math.max(0.75, Math.min(1.5, Number(options.rate) || 1));
         if (voice) {
           utterance.voice = voice;
           utterance.lang = voice.lang;

@@ -26,12 +26,12 @@ test('instant cached feed never restores expired, future, duplicate or malformed
   assert.equal(normalizeCachedFeed(many, NOW).length, 400);
 });
 
-test('marked-read IDs stay hidden across live modes, search, and saved views', () => {
+test('marked-read IDs stay hidden in live modes and search but remain in the saved archive', () => {
   const values = [article(), article({ id: 'unread', title: 'AI unread story' })];
   for (const mode of ['spotlight', 'latest', 'for-you']) {
     assert.deepEqual(ids(filterArticles(values, { now: NOW, mode, query: 'AI', readIds: new Set(['research-1']) })), ['unread']);
   }
-  assert.deepEqual(ids(filterArticles(values, { now: NOW, category: 'saved', readIds: ['research-1'] })), ['unread']);
+  assert.deepEqual(ids(filterArticles(values, { now: NOW, category: 'saved', readIds: ['research-1'] })), ['research-1','unread']);
   assert.equal(REFRESH_INTERVAL, 3_600_000);
 });
 
