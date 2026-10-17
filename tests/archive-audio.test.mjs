@@ -2,10 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { normalizeSavedArchive, changeSavedArchive } from '../src/saved-archive.mjs';
 import { filterArticles, NEWS_WINDOW } from '../src/feed-model.mjs';
-import { createContinuousReader } from '../src/continuous-reader.mjs';
+import { createContinuousReader, visibleStoryId } from '../src/continuous-reader.mjs';
 import { createSpeechReader } from '../src/speech-reader.mjs';
 
 const old = {id:'old',title:'An AI research story',url:'https://example.com/old',publishedAt:'2026-01-01T00:00:00Z',source:'Publisher',category:'technical'};
+test('hands-free selects the dominant visible story after scrolling past an earlier card', () => {
+  const cards=[{id:'old',top:-500,bottom:130},{id:'visible',top:145,bottom:700},{id:'below',top:715,bottom:1200}];
+  assert.equal(visibleStoryId(cards,{top:100,bottom:600}),'visible');
+  assert.equal(visibleStoryId(cards,{top:800,bottom:1000}),'below');
+  assert.equal(visibleStoryId(cards,{top:1300,bottom:1500}),null);
+});
 test('archive survives JSON restoration, arbitrary age, read marks and the former 200-save boundary', () => {
   let archive = normalizeSavedArchive(JSON.parse(JSON.stringify([old])));
   for (let index=0; index<205; index++) archive = changeSavedArchive(archive,{...old,id:`new-${index}`,url:`https://example.com/${index}`});

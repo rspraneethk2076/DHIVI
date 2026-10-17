@@ -50,6 +50,14 @@ The monitor uploads exactly `.local/latest-health.json` with seven-day artifact 
 
 `.local/` is ignored by Git. The database stays on this computer and accumulates maintenance history until explicitly removed. The latest JSON report is replaced on each check. No server database or account is required. GitHub runners validate the same ledger writer in an ephemeral workspace; their SQLite files are not persisted or uploaded. Only the compact JSON report has seven-day GitHub retention.
 
+## Morning Signal and reader checks
+
+Preserve the device archive without age-based deletion or silent size eviction. Read marks hide live stories while saved copies remain visible with read badges. Verify archive persistence across reloads after changing save/read behavior. Device storage can be cleared by the user; do not describe it as cross-device synchronization.
+
+Hands-free reading starts only after a tap, chooses the story occupying most of the visible feed, pauses scrolling for speech, waits the chosen interval and advances with a “Next news” transition. Stop must cancel pending timers as well as speech. Browser voice failures must remain visible and stop the session safely. Test sequencing and cancellation with injected speech/timers; validate audible output on an available real voice before claiming that environment played audio.
+
+See [newsletter setup](newsletter.md) for the private Google service, confirmation/unsubscribe, 8 a.m. Chicago schedule and Gmail quotas. A disabled endpoint during pending authorization is an intentional setup state. Do not claim working delivery without a real confirmed test subscription and received message. No subscriber emails, tokens or private Sheet data belong in the local public-headline ledger, Git or deploy output.
+
 ## Hosted collection is separate
 
 The deployed application uses a bounded Netlify Blobs hourly snapshot, a conditional refresh lease, warm-instance/CDN caching and an hourly scheduled warmer. These share public news between function instances; production and preview stores are isolated. Every served payload still removes stories outside the strict 24-hour window. Shared-storage failure falls back to bounded in-process collection, and failed/deferred publishers remain visible in coverage metadata. The local SQLite ledger is optional maintenance history, not the hosted feed database. Neither the deployed collector nor GitHub monitoring depends on the local scheduled task being awake.

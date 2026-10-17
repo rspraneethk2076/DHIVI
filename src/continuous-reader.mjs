@@ -1,3 +1,13 @@
+// Prefer the story occupying most of the viewport, not a sliver of the old card.
+export function visibleStoryId(cards, viewport) {
+  let best = null, area = 0;
+  for (const card of cards) {
+    const visible = Math.max(0, Math.min(card.bottom, viewport.bottom) - Math.max(card.top, viewport.top));
+    if (visible > area) { best = card.id; area = visible; }
+  }
+  return best;
+}
+
 // Keep sequencing outside React so cancellation and delayed callbacks are testable.
 export function createContinuousReader({ reader, current, next, settings, onState, onEnd,
   delay = setTimeout, cancelDelay = clearTimeout } = {}) {

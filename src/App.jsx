@@ -50,7 +50,7 @@ import {
 } from "./reading-state.mjs";
 import { useReadingProgress } from "./use-reading-progress.jsx";
 import { createSpeechReader } from "./speech-reader.mjs";
-import { createContinuousReader } from "./continuous-reader.mjs";
+import { createContinuousReader, visibleStoryId } from "./continuous-reader.mjs";
 import { normalizeSavedArchive, changeSavedArchive } from "./saved-archive.mjs";
 import SourceCoverage from "./SourceCoverage.jsx";
 import Newsletter from "./Newsletter.jsx";
@@ -425,9 +425,11 @@ export default function App() {
     const current = () => {
       const feed = feedRef.current;
       if (!feed) return null;
-      const top = feed.getBoundingClientRect().top;
-      const card = [...feed.querySelectorAll('[data-article-id]')].find(node => node.getBoundingClientRect().bottom > top + 24);
-      return visibleRef.current.find(article => article.id === card?.getAttribute('data-article-id'));
+      const id = visibleStoryId([...feed.querySelectorAll('[data-article-id]')].map(node => {
+        const { top, bottom } = node.getBoundingClientRect();
+        return { id: node.getAttribute('data-article-id'), top, bottom };
+      }), feed.getBoundingClientRect());
+      return visibleRef.current.find(article => article.id === id);
     };
     continuousRef.current = createContinuousReader({
       reader, current, settings: () => audioSettings.current,
