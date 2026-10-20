@@ -231,6 +231,18 @@ export function filterArticles(
   );
 }
 
+// Ranking metadata can come from yesterday's device cache. Its collection-time
+// recency reason must not be presented as the article's age at reading time.
+export function spotlightRecencyReason(iso, now = Date.now()) {
+  const age = now - Date.parse(iso);
+  if (!Number.isFinite(age) || age < 0 || age > NEWS_WINDOW) return "";
+  return age <= 3 * 3_600_000
+    ? "Published within 3 hours"
+    : age <= 12 * 3_600_000
+      ? "Published within 12 hours"
+      : "Published within 24 hours";
+}
+
 export function relativeTime(iso, now = Date.now()) {
   const minutes = Math.max(0, Math.floor((now - Date.parse(iso)) / 60_000));
   if (minutes < 1) return "Just now";

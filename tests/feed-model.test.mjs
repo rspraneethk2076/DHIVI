@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CATEGORIES, NEWS_WINDOW, REFRESH_INTERVAL, filterArticles, isFreshArticle, normalizeArticle, normalizeCachedFeed, normalizeCreatorSignal, normalizeCuratorDispatch, readStorage, relativeTime, safeLink, writeStorage } from '../src/feed-model.mjs';
+import { CATEGORIES, NEWS_WINDOW, REFRESH_INTERVAL, filterArticles, isFreshArticle, normalizeArticle, normalizeCachedFeed, normalizeCreatorSignal, normalizeCuratorDispatch, readStorage, relativeTime, spotlightRecencyReason, safeLink, writeStorage } from '../src/feed-model.mjs';
 
 const NOW = Date.parse('2026-10-12T18:00:00Z');
 const article = (overrides = {}) => ({
@@ -16,6 +16,18 @@ const article = (overrides = {}) => ({
   ...overrides,
 });
 const ids = (values) => values.map(value => value.id);
+
+test('cached Spotlight recency follows reading time through age boundaries without changing stored evidence', () => {
+  const restored = normalizeCachedFeed(JSON.parse(JSON.stringify([article({ spotlight: { score: 65, reasons: ['Published within 3 hours', 'Research impact'] } })])), NOW)[0];
+  const published = Date.parse(restored.publishedAt);
+  for (const [age, reason] of [[0, 'Published within 3 hours'], [3*3_600_000, 'Published within 3 hours'], [3*3_600_000+1, 'Published within 12 hours'], [12*3_600_000, 'Published within 12 hours'], [12*3_600_000+1, 'Published within 24 hours'], [23*3_600_000, 'Published within 24 hours'], [NEWS_WINDOW, 'Published within 24 hours'], [NEWS_WINDOW+1, ''], [-1, '']]) {
+    assert.equal(spotlightRecencyReason(restored.publishedAt, published+age), reason);
+  }
+  assert.equal(spotlightRecencyReason('invalid', NOW), '');
+  assert.equal(restored.spotlight.score, 65);
+  assert.deepEqual(restored.spotlight.reasons, ['Published within 3 hours', 'Research impact']);
+  assert.equal(relativeTime(restored.publishedAt, published+23*3_600_000), '23h ago');
+});
 
 test('instant cached feed never restores expired, future, duplicate or malformed stories', () => {
   const values = [article(), article(), article({id:'expired',publishedAt:new Date(NOW-NEWS_WINDOW-1).toISOString()}), article({id:'future',publishedAt:new Date(NOW+1).toISOString()}), null, {title:'broken'}, article({id:'boundary',publishedAt:new Date(NOW-NEWS_WINDOW).toISOString()})];

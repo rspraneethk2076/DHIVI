@@ -40,6 +40,7 @@ import {
   normalizeCachedFeed,
   readStorage,
   relativeTime,
+  spotlightRecencyReason,
   writeStorage,
 } from "./feed-model.mjs";
 import {
@@ -87,6 +88,8 @@ const ArticleCard = React.memo(function ArticleCard({
   onRead,
   priority,
   spotlight,
+  spotlightRecency,
+  publishedAgo,
   readoutMode,
   onReadoutMode,
   onReadout,
@@ -97,10 +100,13 @@ const ArticleCard = React.memo(function ArticleCard({
 }) {
   const [failed, setFailed] = useState(false);
   const fallback = failed || !article.hasPublisherImage;
+  const spotlightReasons = article.spotlight.reasons
+    .map((reason) => reason.startsWith("Published within ") ? spotlightRecency : reason)
+    .filter(Boolean);
   const spotlightReason =
-    article.spotlight.reasons.find(
+    spotlightReasons.find(
       (reason) => !reason.startsWith("Published within "),
-    ) || article.spotlight.reasons[0];
+    ) || spotlightReasons[0];
   return (
     <article
       className={`story story-${article.category} ${listening ? "is-listening" : ""}`}
@@ -146,7 +152,7 @@ const ArticleCard = React.memo(function ArticleCard({
             dateTime={article.publishedAt}
             title={new Date(article.publishedAt).toLocaleString()}
           >
-            {relativeTime(article.publishedAt)}
+            {publishedAgo}
           </time>
           <span>·</span>
           <span>
@@ -186,7 +192,7 @@ const ArticleCard = React.memo(function ArticleCard({
           </span>
         )}
         {article.summary && <p className="story-summary">{article.summary}</p>}
-        {spotlight && article.spotlight.reasons.length > 0 && (
+        {spotlight && spotlightReasons.length > 0 && (
           <details className="story-spotlight">
             <summary>
               <Sparkles size={12} />
@@ -194,7 +200,7 @@ const ArticleCard = React.memo(function ArticleCard({
               <span>{spotlightReason}</span>
               <ChevronRight size={12} />
             </summary>
-            <p>{article.spotlight.reasons.join(" · ")}</p>
+            <p>{spotlightReasons.join(" · ")}</p>
             {article.spotlight.corroboration.sourceCount > 1 && (
               <p>
                 Related coverage:{" "}
@@ -1128,6 +1134,8 @@ export default function App() {
                       onRead={learn}
                       priority={index < 2}
                       spotlight={mode === "spotlight" && category !== "saved"}
+                      spotlightRecency={spotlightRecencyReason(article.publishedAt, now)}
+                      publishedAgo={relativeTime(article.publishedAt, now)}
                       readoutMode={readoutMode}
                       onReadoutMode={chooseReadoutMode}
                       onReadout={readOut}
