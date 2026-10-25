@@ -554,6 +554,31 @@ test('explicit journals show a real bounded abstract evidence sentence instead o
   assert.equal(parseFeed(beyondBound, journal, NOW).length, 0);
 });
 
+test('a cold request with unresponsive feeds returns usable news within the hosting budget', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: NOW });
+  const sources = [
+    { ...source, id: 'fresh', url: 'https://fresh.example/feed' },
+    { ...source, id: 'slow', url: 'https://slow.example/feed' },
+    { ...source, id: 'queued', url: 'https://slow.example/other-feed' },
+  ];
+  const service = createNewsService({ sources, concurrency: 2, perHost: 1, imageEnrichment: false, fetchImpl: async url => {
+    // Some publisher connections do not settle even when their signal aborts.
+    if (url.includes('slow.example')) return new Promise(() => {});
+    return new Response(rss(item()));
+  } });
+  let result;
+  const response = service().then(value => { result = value; });
+  await new Promise(setImmediate);
+  t.mock.timers.tick(24_000);
+  await new Promise(setImmediate);
+  assert.ok(result, 'cold collection must leave time for storage and serialization before 30 seconds');
+  assert.equal(result.status, 200);
+  assert.equal(result.payload.articles.length, 1);
+  assert.equal(result.payload.sourceCoverage.available, 1);
+  assert.equal(result.payload.sourceCoverage.deferred, 2);
+  await response;
+});
+
 test('source coverage distinguishes available, current and deadline-deferred checks and preserves trust metadata', async () => {
   const sources = [
     { ...source, id: 'fresh', publisher: 'One Publisher', kind: 'primary', trustReason: 'Official publisher feed', url: 'https://fresh.example/feed' },

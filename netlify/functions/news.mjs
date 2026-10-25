@@ -120,7 +120,9 @@ export function projectNewsResponse(cache, now = Date.now()) {
 
 // Feed fetches share an hourly warm-instance cache. Responses themselves are
 // projected on every request so cached stories/scores age out immediately.
-function createScopedNewsService({ sources = SOURCES, creatorSource = null, curatorUrl = null, fetchImpl = fetch, clock = Date.now, timeout = 6_000, imageEnrichment = true, concurrency = 16, perHost = 2, sourceDeadlineMs = 38_000, totalDeadlineMs = 42_000, sharedCache = null } = {}) {
+// Cold HTTP requests must also fit the observed 30-second hosting limit.
+// Reserve time outside collection for Blob reads, the lease, writes and JSON.
+function createScopedNewsService({ sources = SOURCES, creatorSource = null, curatorUrl = null, fetchImpl = fetch, clock = Date.now, timeout = 6_000, imageEnrichment = true, concurrency = 16, perHost = 2, sourceDeadlineMs = 18_000, totalDeadlineMs = 20_000, sharedCache = null } = {}) {
   const sourceCache = new Map();
   const imageCache = new Map();
   let creatorCache;
