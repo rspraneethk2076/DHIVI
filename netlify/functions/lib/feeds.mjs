@@ -40,9 +40,11 @@ const BIOLOGICAL_REGULATION = /\b(?:(?:gene|genetic|genomic|epigenetic|transcrip
 const POLICY_ACTION = /\b(?:sign(?:s|ed)?|approv(?:e[sd]?|al)|enact(?:s|ed)?|pass(?:es|ed)?|ban(?:s|ned)?|restrict(?:s|ed|ion)?|impos(?:e[sd]?|ing)|govern(?:s|ed)?|governments?|Congress|Senate|minister|contract|procure(?:ment)?|investigat(?:e[sd]?|ion)|compliance deadline)\b/i;
 
 const policyText = value => value.replace(BIOLOGICAL_REGULATION, '');
-// Software incident diagnosis is not evidence of a medical topic. Keep other
-// clinical terms intact so a genuinely clinical story still takes precedence.
-const clinicalText = value => value.replace(/\bdiagnos(?:is|tics?|e[sd]?|ing)\b(?=[^.!?]{0,80}\b(?:production incidents?|software (?:bugs?|errors?|issues?)|(?:application|database|server|network) (?:failures?|outages?|faults?|crashes?))\b)/gi, '');
+// Software diagnosis and leaked health information alone do not establish a
+// clinical topic. Other clinical evidence and dedicated healthcare sources stay intact.
+const clinicalText = value => value
+  .replace(/\bdiagnos(?:is|tics?|e[sd]?|ing)\b(?=[^.!?]{0,80}\b(?:production incidents?|software (?:bugs?|errors?|issues?)|(?:application|database|server|network) (?:failures?|outages?|faults?|crashes?))\b)/gi, '')
+  .replace(/\b(?:leak(?:s|ed|ing)?|expos(?:e[sd]?|ing))\s+(?:(?:private|personal|sensitive)\s+)*(?:medical|health)\s+(?:data|details|information|records)\b/gi, '');
 const biomedicalBrainFocus = value => /\bhuman brain\b/i.test(value) && /\b(?:gene regulation|gene expression|(?:genetic|regulatory) variants?|variant effects)\b/i.test(value);
 
 export function isWithinNewsWindow(publishedAt, now = Date.now()) {

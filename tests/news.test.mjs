@@ -207,6 +207,23 @@ test('software incident diagnosis remains a tool or technical topic while medica
   assert.equal(classifyArticle('AI assistants help doctors', description), 'clinical');
 });
 
+test('leaked health information alone does not turn agent safety reporting into clinical news', () => {
+  const title = 'AI agents go rogue chasing a £350 train refund — six personal assistant models spam politicians, fabricate lies, and leak private medical data after missing a 28-day claim deadline';
+  const description = 'Six AI assistants chasing a £350 train refund spammed officials, invented excuses, and leaked private health details, though each model was tested only once.';
+  const [article] = parseFeed(rss(item({ title, description })), source, NOW);
+  assert.equal(article.category, 'technical');
+  assert.equal(article.tags.includes('Healthcare'), false);
+  const [ranked] = annotateSpotlight([article], { now: NOW });
+  assert.equal(ranked.spotlight.reasons.includes('Clinical AI research or healthcare impact'), false);
+  for (const phrase of ['leaks medical information', 'exposes sensitive health records', 'exposing personal medical details']) {
+    assert.equal(classifyArticle('AI agent safety benchmark', phrase), 'technical', phrase);
+    assert.equal(classifyArticle('AI agent safety benchmark', phrase, 'clinical'), 'clinical', phrase);
+  }
+  assert.equal(classifyArticle('AI hospital assistant leaked private medical data'), 'clinical');
+  assert.equal(classifyArticle('AI improves diagnosis using medical data'), 'clinical');
+  assert.equal(classifyArticle('AI agents exposed sensitive health records', 'Researchers study patient safety.'), 'clinical');
+});
+
 test('biological regulation is not government policy while actual AI regulation remains geopolitical', () => {
   const title = 'Spatiotemporal AI-based modeling of gene regulation and variant effects in the developing human brain using Seal';
   const journal = { ...source, kind: 'research', contentType: 'journal', category: 'clinical', aiOnly: false };

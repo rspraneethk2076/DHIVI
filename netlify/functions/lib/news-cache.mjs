@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 import { MAX_ARTICLE_AGE, REFRESH_INTERVAL, isWithinNewsWindow, safeUrl } from './feeds.mjs';
 
-export const CACHE_VERSION = 7;
+export const CACHE_VERSION = 8;
 export const MAX_SNAPSHOT_BYTES = 24_000_000;
 const CATEGORIES = new Set(['news', 'technical', 'clinical', 'tools', 'geopolitical']);
 const SNAPSHOT_KEY = 'hourly-snapshot';
