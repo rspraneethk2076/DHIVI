@@ -38,6 +38,7 @@ const GEOPOLITICAL = /\b(?:geopolitic(?:s|al)?|export controls?|export restricti
 const REGULATION = /\b(?:regulat(?:ion|ions|ory|e|es|ed|ing)|legislat(?:ion|ive|ors?)|lawmakers?|AI laws?|AI bills?|AI governance|AI polic(?:y|ies))\b/i;
 const BIOLOGICAL_REGULATION = /\b(?:(?:gene|genetic|genomic|epigenetic|transcriptional|post[- ]transcriptional|protein|cellular|metabolic|hormonal|biological)\s+regulat(?:ion|ions|ory|e|es|ed|ing)|regulatory variants?|regulation of (?:gene expression|transcription|metabolism|protein activity|hormones))\b/gi;
 const POLICY_ACTION = /\b(?:sign(?:s|ed)?|approv(?:e[sd]?|al)|enact(?:s|ed)?|pass(?:es|ed)?|ban(?:s|ned)?|restrict(?:s|ed|ion)?|impos(?:e[sd]?|ing)|govern(?:s|ed)?|governments?|Congress|Senate|minister|contract|procure(?:ment)?|investigat(?:e[sd]?|ion)|compliance deadline)\b/i;
+const PUBLIC_AI_RESTRICTION = /\b(?:governments?|ministr(?:y|ies)|Parliament|Congress|Senate|White House)\s+(?:(?:has|have|will|now|temporarily|permanently|AI)\s+)*(?:ban(?:s|ned|ning)?|block(?:s|ed|ing)?|restrict(?:s|ed|ing)?|prohibit(?:s|ed|ing)?)\b|\b(?:banned|blocked|restricted|prohibited)\s+by\s+(?:[\w.’'-]+\s+){0,3}(?:governments?|ministr(?:y|ies)|Parliament|Congress|Senate|White House)\b/i;
 
 const policyText = value => value.replace(BIOLOGICAL_REGULATION, '');
 // Software diagnosis and leaked health information alone do not establish a
@@ -54,6 +55,9 @@ export function isWithinNewsWindow(publishedAt, now = Date.now()) {
 
 export function hasGeopoliticalFocus(title, summary = '') {
   if (GEOPOLITICAL.test(title) || REGULATION.test(policyText(title))) return true;
+  // Require a headline AI subject and a restriction tied to a public authority.
+  // A company restriction or a government report about blocking attacks is not enough.
+  if ((AI.test(title) || /\b(?:OpenAI|Anthropic|DeepMind|xAI)\b/i.test(title)) && PUBLIC_AI_RESTRICTION.test(title)) return true;
   if ((AI.test(`${title} ${summary}`) || /\b(?:OpenAI|Anthropic|DeepMind|xAI)\b/i.test(title)) && /\b(?:FTC|Federal Trade Commission)\s+(?:subpoena(?:s|ed)?|probes?|probed|probing|investigat(?:es?|ed|ing))\b/i.test(title)) return true;
   if (AI.test(`${title} ${summary}`) && /\b(?:laws?|bills?|Congress|Senate|Parliament|White House)\b/i.test(title) && /\b(?:govern|regulat|approv|sign|pass|ban|restrict|propos|draft|debat)\w*\b/i.test(title) && !/\b(?:scaling|power|physical|moore'?s)\b/i.test(title)) return true;
   const sentences = summary.split(/[.!?](?:\s|$)/);

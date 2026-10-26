@@ -178,6 +178,21 @@ test('geopolitical classification recognizes meaningful policy and security stor
   assert.equal(nonAI.length, 0);
 });
 
+test('public-authority AI restrictions enter Geopolitical without treating company bans or reports as policy actions', () => {
+  const title = 'ChatGPT and Claude blocked by Swedish government over "problematic" security concerns';
+  const [article] = parseFeed(rss(item({ title, description: 'ChatGPT and Anthropic join DeepSeek in Swedish government AI ban.' })), source, NOW);
+  assert.equal(article.category, 'geopolitical');
+  assert.equal(annotateSpotlight([article], { now: NOW })[0].spotlight.reasons.includes('AI policy, international competition or national-security impact'), true);
+  for (const headline of ['Government temporarily bans ChatGPT', 'Ministry restricts Claude over security concerns', 'Anthropic prohibited by the federal government', 'Parliament has blocked AI assistants']) {
+    assert.equal(classifyArticle(headline), 'geopolitical', headline);
+  }
+  for (const headline of ['Company blocks ChatGPT at work', 'Government report finds AI blocks phishing attacks', 'New AI tool blocks government impersonation scams']) {
+    assert.notEqual(classifyArticle(headline), 'geopolitical', headline);
+  }
+  assert.notEqual(classifyArticle('Company blocks ChatGPT', 'A government report discusses AI safety.'), 'geopolitical');
+  assert.equal(parseFeed(rss(item({ title: 'Government blocks parking access', description: 'A temporary road closure.' })), { ...source, aiOnly: false }, NOW).length, 0);
+});
+
 test('AI agency investigations and US military branches are geopolitical without acronym or color false positives', () => {
   for (const title of [
     'FTC subpoenas OpenAI and Anthropic following safety failures',
